@@ -1,7 +1,7 @@
 package twichcomm
 
-type ChatParams struct {
-}
+// import "net/http"
 
-func SubscribeToChat() {
+func SubscribeToChat(sessionInfo *ConnectionInfo) {
+	// http.Post()
 }

@@ -10,23 +10,28 @@ import (
 const TwichWS_URI string = "wss://eventsub.wss.twitch.tv/ws"
 const Origin string = "http://localhost"
 
-// struct
+const ShowMessages bool = true
 
-func ConnectToWs(ApiKey string) error {
+type ConnectionInfo struct {
+	SessionId string
+}
+
+func ConnectToWs(ApiKey string) (*ConnectionInfo, error) {
 	fmt.Println("Connecting to twich API")
 	var wsConn, err = websocket.Dial(TwichWS_URI, "", Origin)
 	if err != nil {
-		return fmt.Errorf("An error occured while connecting to twich API. \nOriginal error: %v\n", err.Error())
+		return nil, fmt.Errorf("An error occured while connecting to twich API. \nOriginal error: %v\n", err.Error())
 	}
+
 	// Reading welocme message
 	var welcome_msg, wm_err = readWelcomeMessage(wsConn)
 	if wm_err != nil {
-		return wm_err
+		return nil, wm_err
 	}
 	fmt.Printf("MessageID: '%v'\n", welcome_msg.Metadata.Message_Id)
 
 	go ConnectionRoutine(wsConn)
-	return nil
+	return &ConnectionInfo{SessionId: welcome_msg.Payload.Session.Id}, nil
 }
 
 func ConnectionRoutine(ws *websocket.Conn) {
@@ -38,7 +43,7 @@ func ConnectionRoutine(ws *websocket.Conn) {
 			continue
 		}
 		buf = buf[:i]
-		fmt.Printf("Welcome message: %v \n", string(buf))
+		fmt.Printf("Message: %v \n", string(buf))
 	}
 }
 
@@ -51,6 +56,9 @@ func readWelcomeMessage(ws *websocket.Conn) (*WelcomeMessage, error) {
 	}
 	buf = buf[:i]
 	var welcome_msg WelcomeMessage
+	if ShowMessages {
+		fmt.Println(string(buf))
+	}
 	var unmErr = json.Unmarshal([]byte(string(buf)), &welcome_msg)
 	if unmErr != nil {
 		return nil, unmErr
