@@ -2,30 +2,33 @@ package main
 
 import (
 	twichcomm "StreamTTS/TwichComm"
+	ev "StreamTTS/EnvVariables"
 	"fmt"
 	"net/http"
-	"os"
-
-	"github.com/joho/godotenv"
 )
-
-type EnvVariables struct {
-	TwichAPIKey string
-	UserToken string
-}
-
 func main() {
 	go RunHTTPServer()
-	var EnvVars, envErr = ReadEnvVariables()
+	var envErr = ev.ReadEnvVariables()
 	if envErr != nil {
 		return
 	}
 
-	twichcomm.PrintAuthRequest(EnvVars.TwichAPIKey);
+	var isUserTokenValid = twichcomm.AuthenticateApp() 
 	// Waiting for auth 
-	EnvVars.UserToken = <- twichcomm.AuthKeyChan
-	fmt.Printf("User token: %v\n", EnvVars.UserToken)
-	var SessionInfo, connectionErr = twichcomm.ConnectToWs(EnvVars.TwichAPIKey)
+	ev.Enviroment.UserToken = <- twichcomm.AuthKeyChan
+	if !isUserTokenValid {
+		ev.SetUserToken()
+	}
+
+	if !twichcomm.IsTokenValid() {
+		fmt.Println("An error occured while authenticating")
+		return
+	} else {
+		fmt.Println("Valid token")
+	}
+
+	fmt.Printf("User token: %v\n", ev.Enviroment.UserToken)
+	var SessionInfo, connectionErr = twichcomm.ConnectToWs(ev.Enviroment.TwichAPIKey)
 	if connectionErr != nil {
 		fmt.Println(connectionErr.Error())
 		return
@@ -35,18 +38,6 @@ func main() {
 	for {
 	}
 }
-
-// Reads variables from .env file
-func ReadEnvVariables() (*EnvVariables, error) {
-	var loadErr = godotenv.Load()
-	if loadErr != nil {
-		return nil, loadErr
-	}
-	var outp = EnvVariables{}
-	outp.TwichAPIKey = os.Getenv("TWICH_API_KEY")
-	return &outp, nil
-}
-
 func RunHTTPServer() {
 	http.HandleFunc("/auth", twichcomm.AuthKeyHttpEndpoint) 
 	http.ListenAndServe(":3000", nil)
