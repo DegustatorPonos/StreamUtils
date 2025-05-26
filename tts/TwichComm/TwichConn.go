@@ -6,6 +6,7 @@ import (
 
 	"golang.org/x/net/websocket"
 	ev "StreamTTS/EnvVariables"
+	msgs "StreamTTS/MessageHandling"
 )
 
 const TwichWS_URI string = "wss://eventsub.wss.twitch.tv/ws"
@@ -53,7 +54,15 @@ func ConnectionRoutine(ws *websocket.Conn) {
 		case "session_keepalive":
 			continue
 		case "channel.chat.message":
-			fmt.Printf("Message: %v \n", string(buf))
+			var msg APIChatMessage
+			var unmErr = json.Unmarshal(buf, &msg)
+			if unmErr != nil {
+				fmt.Printf("Error: %v\n", unmErr.Error())
+				continue
+			}
+			// fmt.Println(msg.Payload.Event.Message.Text)
+			msgs.HandleMessage(msg.Payload.Event.Chatter_User_Name, msg.Payload.Event.Message.Text)
+			// fmt.Printf("Message: %v \n", string(buf))
 		}
 	}
 }

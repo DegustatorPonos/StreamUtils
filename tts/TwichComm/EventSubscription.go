@@ -23,11 +23,6 @@ type ChatMessageCondition struct {
 	User_ID string `json:"user_id"`
 }
 
-type WebhookInfo struct {
-	Method string `json:"method"`
-	Session_ID string `json:"session_id"`
-}
-
 type ActiveSubscriptionsList struct {
 	Data []struct{ 
 		Id string `json:"id"`
