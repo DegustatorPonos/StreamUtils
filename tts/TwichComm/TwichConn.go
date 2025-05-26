@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"golang.org/x/net/websocket"
+	ev "StreamTTS/EnvVariables"
 )
 
 const TwichWS_URI string = "wss://eventsub.wss.twitch.tv/ws"
@@ -28,7 +29,8 @@ func ConnectToWs(ApiKey string) (*ConnectionInfo, error) {
 	if wm_err != nil {
 		return nil, wm_err
 	}
-	fmt.Printf("MessageID: '%v'\n", welcome_msg.Metadata.Message_Id)
+	ev.Enviroment.WsSessionID = welcome_msg.Payload.Session.Id
+	// fmt.Printf("MessageID: '%v'\n", welcome_msg.Metadata.Message_Id)
 
 	go ConnectionRoutine(wsConn)
 	return &ConnectionInfo{SessionId: welcome_msg.Payload.Session.Id}, nil

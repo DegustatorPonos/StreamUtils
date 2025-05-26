@@ -1,7 +1,9 @@
 package envvariables
 
 import (
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -10,9 +12,13 @@ type EnvVariables struct {
 	// Stored in .env file
 	TwichAPIKey string
 	TwichAPISecret string
-	UserToken string
-	// Stored in temp
 	UserCode string
+	BroadcasterId string
+	UserId string
+	// Stored in temp
+	UserToken string
+	// Got every time
+	WsSessionID string
 }
 
 var Enviroment EnvVariables = EnvVariables{}
@@ -24,12 +30,36 @@ func ReadEnvVariables() (error) {
 		return loadErr
 	}
 	Enviroment.TwichAPIKey = os.Getenv("TWICH_API_KEY")
-	Enviroment.UserToken = os.Getenv("USER_TOKEN")
+	Enviroment.UserCode = os.Getenv("USER_CODE")
 	Enviroment.TwichAPISecret = os.Getenv("TWICH_API_SECRET")
+	Enviroment.UserId = os.Getenv("USER_ID")
+	Enviroment.BroadcasterId = os.Getenv("BROADCASTER_ID")
 	return nil
 }
 
 func SetUserToken() {
-	var _ = os.Setenv("USER_TOKEN", Enviroment.UserToken)
+	var newLine = fmt.Sprintf("USER_CODE=%v", Enviroment.UserCode)
+	var content, ferr = os.ReadFile(".env")
+	if ferr != nil {
+		return
+	}
+	var vars = strings.Split(string(content), "\n")
+	for i, v := range vars {
+		if strings.HasPrefix(v, "USER_CODE=") {
+			vars[i] = newLine
+			writeToEnv(vars)
+			return
+		}
+	}
+	vars = append(vars, newLine)
+	writeToEnv(vars)
+	// var _ = os.Setenv("USER_TOKEN", Enviroment.UserToken)
 }
 
+func writeToEnv(val []string) {
+	var contents = strings.Join(val, "\n")
+	var err = os.WriteFile(".env", []byte(contents), 0666)
+	if err != nil {
+		fmt.Println("Error while writing user code to .env file")
+	}
+}

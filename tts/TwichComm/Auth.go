@@ -36,6 +36,13 @@ var AuthKeyChan chan string
 // Checks a stored value of 
 func AuthenticateApp() bool { 
 	AuthKeyChan = make(chan string, 1) 
+	var oauthResp, err = ExchangeCode()
+	if err != nil {
+		fmt.Printf("Error: %v\n", err.Error())
+		printAuthRequest(ev.Enviroment.TwichAPIKey)
+		return false
+	}
+	ev.Enviroment.UserToken = oauthResp.Access_token
 	if IsTokenValid() {
 		AuthKeyChan <- ev.Enviroment.UserCode
 		return true
@@ -95,7 +102,9 @@ func ExchangeCode() (*OAuthResp, error) {
 		return nil, err
 	}
 	var outp = OAuthResp{}
-	var jsonErr = json.Unmarshal([]byte(parseResponce(resp)), &outp)
+	var respBody = parseResponce(resp)
+	fmt.Print(string(respBody))
+	var jsonErr = json.Unmarshal(respBody, &outp)
 	if jsonErr != nil {
 		return nil, jsonErr
 	}
@@ -124,4 +133,10 @@ func getExcangeBody() []byte {
 	}
 	var outp = strings.Join(params, "&")
 	return []byte(outp)
+}
+
+func AddAuthHeaders(req *http.Request) {
+	req.Header.Set("Authorization", fmt.Sprintf("OAuth %v", ev.Enviroment.UserToken))
+	req.Header.Set("Client-Id", ev.Enviroment.TwichAPIKey)
+	req.Header.Set("Content-Type", "application/json")
 }
