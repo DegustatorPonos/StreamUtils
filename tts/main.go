@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 )
+
 func main() {
 	go RunHTTPServer()
 	var envErr = ev.ReadEnvVariables()
@@ -26,7 +27,7 @@ func main() {
 		fmt.Println(connectionErr.Error())
 		return
 	}
-	fmt.Printf("Session ID: %v\n", SessionInfo.SessionId)
+	// fmt.Printf("Session ID: %v\n", SessionInfo.SessionId)
 	RegisterSubscriptions(SessionInfo)
 
 	for {
@@ -39,5 +40,6 @@ func RunHTTPServer() {
 }
 
 func RegisterSubscriptions(sessionInfo *twichcomm.ConnectionInfo) {
+	twichcomm.ClearSubscriptions()
 	twichcomm.SubscribeToChat(sessionInfo)
 }

@@ -103,7 +103,9 @@ func ExchangeCode() (*OAuthResp, error) {
 	}
 	var outp = OAuthResp{}
 	var respBody = parseResponce(resp)
-	fmt.Print(string(respBody))
+	if ShowMessages {
+		fmt.Print(string(respBody))
+	}
 	var jsonErr = json.Unmarshal(respBody, &outp)
 	if jsonErr != nil {
 		return nil, jsonErr

@@ -28,6 +28,16 @@ type WebhookInfo struct {
 	Session_ID string `json:"session_id"`
 }
 
+type ActiveSubscriptionsList struct {
+	Data []struct{ 
+		Id string `json:"id"`
+	} `json:"data"`
+}
+
+func OnExit() {
+	fmt.Println("xdx")
+}
+
 func SubscribeToChat(sessionInfo *ConnectionInfo) bool {
 	var body = subscriptionRequest {
 		Type: "channel.chat.message",
@@ -45,7 +55,6 @@ func SubscribeToChat(sessionInfo *ConnectionInfo) bool {
 	if err != nil {
 		return false
 	}
-	fmt.Printf("Sub request: %v\n", string(bodyJSON))
 	var client = &http.Client{}
 	var req, reqErr = http.NewRequest("POST", EventSubURL, bytes.NewReader(bodyJSON))
 	if reqErr != nil {
@@ -58,11 +67,43 @@ func SubscribeToChat(sessionInfo *ConnectionInfo) bool {
 	if doErr != nil {
 		return false
 	}
-
-	fmt.Println(req.Header.Get("Authorization"))
-
 	var respBody = parseResponce(resp)
 	fmt.Printf("Subscription request: %v\n", string(respBody))
-	
 	return true
+}
+
+func ClearSubscriptions() {
+	var subs = GetActiveSubscriptions()
+	var client = &http.Client{}
+	for _, v := range subs {
+		var req, _ = http.NewRequest("DELETE", fmt.Sprintf("%v?id=%v", EventSubURL, v), nil)
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", ev.Enviroment.UserToken))
+		req.Header.Set("Client-Id", ev.Enviroment.TwichAPIKey)
+		var resp, err = client.Do(req)
+		if err != nil || resp.StatusCode != 204 {
+			fmt.Printf("Error while unsubbing from event %v. Error code: %v\n", v, resp.StatusCode)
+		}
+	}
+}
+
+func GetActiveSubscriptions() []string {
+	var client = &http.Client{}
+	var req, _ = http.NewRequest("GET", EventSubURL, nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", ev.Enviroment.UserToken))
+	req.Header.Set("Client-Id", ev.Enviroment.TwichAPIKey)
+	var resp, err = client.Do(req)
+	if err != nil {
+		return nil
+	}
+	var body = parseResponce(resp)
+	if ShowMessages {
+		fmt.Println(string(body))
+	}
+	var subList = ActiveSubscriptionsList{}
+	json.Unmarshal(body, &subList)
+	var outp = make([]string, 0)
+	for _, v := range subList.Data {
+		outp = append(outp, v.Id)
+	}
+	return outp
 }

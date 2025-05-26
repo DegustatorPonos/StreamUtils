@@ -9,10 +9,16 @@ type WelcomeMessage struct {
 type APIMessageMetadata struct {
 	Message_Id string  `json:"message_id"`
 	Message_type string `json:"message_type"`
+	Subscription_Type string `json:"subscription_type"`
 }
 
 type WelcomeMessagePayload struct {
 	Session WelcomeMessageSession  `json:"session"`
+}
+
+// used to determine the type of the message and decide on its processing later
+type BareBonesMessage struct {
+	Metadata APIMessageMetadata `json:"metadata"`
 }
 
 type WelcomeMessageSession struct {

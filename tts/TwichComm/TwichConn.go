@@ -39,13 +39,22 @@ func ConnectToWs(ApiKey string) (*ConnectionInfo, error) {
 func ConnectionRoutine(ws *websocket.Conn) {
 	defer ws.Close()
 	for {
-		var buf = make([]byte, 1024)
+		var buf = make([]byte, 2048)
 		var i, err = ws.Read(buf) 
 		if err != nil {
 			continue
 		}
 		buf = buf[:i]
-		fmt.Printf("Message: %v \n", string(buf))
+		var MsgType = GetMessageType(buf)
+		// fmt.Printf("Msg type: %v\n", MsgType)
+		switch MsgType {
+		default:
+			continue
+		case "session_keepalive":
+			continue
+		case "channel.chat.message":
+			fmt.Printf("Message: %v \n", string(buf))
+		}
 	}
 }
 
@@ -66,4 +75,16 @@ func readWelcomeMessage(ws *websocket.Conn) (*WelcomeMessage, error) {
 		return nil, unmErr
 	}
 	return &welcome_msg, nil
+}
+
+func GetMessageType(data []byte) string {
+	var bbm = BareBonesMessage{}
+	var err = json.Unmarshal(data, &bbm)
+	if err != nil {
+		return ""
+	}
+	if bbm.Metadata.Subscription_Type != "" {
+		return bbm.Metadata.Subscription_Type
+	}
+	return bbm.Metadata.Message_type
 }
