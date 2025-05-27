@@ -1,6 +1,7 @@
 package envvariables
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"strings"
@@ -20,6 +21,7 @@ type EnvVariables struct {
 	WsSessionID string
 	BroadcasterId string
 	UserId string
+	MainDB *sql.DB
 }
 
 var Enviroment EnvVariables = EnvVariables{}

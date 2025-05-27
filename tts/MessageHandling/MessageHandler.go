@@ -1,12 +1,19 @@
 package messagehandling
 
 import (
+	chatters "StreamTTS/Chatters"
+	ev "StreamTTS/EnvVariables"
 	"fmt"
 	"os/exec"
 )
 
 func HandleMessage(username, msg string) {
-	fmt.Printf("%v: %v\n", username, msg)
+	var UserID = chatters.GetChatterID(username, ev.Enviroment.MainDB)
+	if UserID < 0 {
+		chatters.RegisterChatter(username, ev.Enviroment.MainDB)
+		UserID = chatters.GetChatterID(username, ev.Enviroment.MainDB)
+	}
+	fmt.Printf("%d %v: %v\n", UserID, username, msg)
 	go SayMsg(msg)
 }
 

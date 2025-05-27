@@ -6,12 +6,14 @@ import (
 
 	ev "StreamTTS/EnvVariables"
 	twichcomm "StreamTTS/TwichComm"
+	chatters "StreamTTS/Chatters"
 )
 
 var TerminationChan = make(chan interface{}, 1)
 
 func main() {
 	go RunHTTPServer()
+	ev.Enviroment.MainDB = chatters.EstablishDBConnection()
 	var envErr = ev.ReadEnvVariables()
 	if envErr != nil {
 		return
