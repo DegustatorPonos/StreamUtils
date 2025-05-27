@@ -50,6 +50,9 @@ func SubscribeToChat(sessionInfo *ConnectionInfo) bool {
 	if err != nil {
 		return false
 	}
+	if ShowMessages {
+		fmt.Printf("Subscription request: %v\n", string(bodyJSON))
+	}
 	var client = &http.Client{}
 	var req, reqErr = http.NewRequest("POST", EventSubURL, bytes.NewReader(bodyJSON))
 	if reqErr != nil {
@@ -63,7 +66,7 @@ func SubscribeToChat(sessionInfo *ConnectionInfo) bool {
 		return false
 	}
 	var respBody = parseResponce(resp)
-	fmt.Printf("Subscription request: %v\n", string(respBody))
+	fmt.Printf("Subscription responce: %v\n", string(respBody))
 	return true
 }
 

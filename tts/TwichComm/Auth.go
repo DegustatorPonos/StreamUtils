@@ -22,7 +22,7 @@ const OAuthLink = "https://id.twitch.tv/oauth2/token"
 
 const ValidationLink = "https://id.twitch.tv/oauth2/validate"
 
-type OAuthResp struct {
+type OAuthCodeResp struct {
 	Access_token string `json:"access_token"`
 	Expires_in int `json:"expires_in"`
 	Refresh_token string `json:"refresh_token"`
@@ -83,13 +83,18 @@ func IsTokenValid() bool {
 		return false
 	}
 	if resp.StatusCode == 200 {
+		var body = parseResponce(resp)
+		if ShowMessages {
+			fmt.Println(string(body))
+		}
+		SetUserIDFromValidation(body)
 		return true
 	}
 	return false
 }
 
 // Calls for twich OAuth services
-func ExchangeCode() (*OAuthResp, error) {
+func ExchangeCode() (*OAuthCodeResp, error) {
 	var client = &http.Client{}
 	var body = getExcangeBody()
 	var req, reqerr = http.NewRequest("POST", OAuthLink, bytes.NewReader(body))
@@ -101,7 +106,7 @@ func ExchangeCode() (*OAuthResp, error) {
 	if err != nil {
 		return nil, err
 	}
-	var outp = OAuthResp{}
+	var outp = OAuthCodeResp{}
 	var respBody = parseResponce(resp)
 	if ShowMessages {
 		fmt.Print(string(respBody))
@@ -141,4 +146,13 @@ func AddAuthHeaders(req *http.Request) {
 	req.Header.Set("Authorization", fmt.Sprintf("OAuth %v", ev.Enviroment.UserToken))
 	req.Header.Set("Client-Id", ev.Enviroment.TwichAPIKey)
 	req.Header.Set("Content-Type", "application/json")
+}
+
+func SetUserIDFromValidation(respBody []byte) {
+	var resp = OAuthResponce{}
+	var err = json.Unmarshal(respBody, &resp)
+	if err != nil {
+		panic("An error occured while unmarshalling OAuth JSON")
+	}
+	ev.Enviroment.UserId = resp.User_Id
 }

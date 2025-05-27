@@ -10,5 +10,6 @@ Connects to twich chat and reads messages. Uses espeak as a driver
 ```
 TWICH_API_KEY=<API key of your app>
 TWICH_API_SECRET=<API secret of your app>
+BROADCASTER_LOGIN=<Tartget chat owner>
 ```
 - go run .

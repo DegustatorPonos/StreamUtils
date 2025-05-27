@@ -1,10 +1,11 @@
 package main
 
 import (
-	twichcomm "StreamTTS/TwichComm"
-	ev "StreamTTS/EnvVariables"
 	"fmt"
 	"net/http"
+
+	ev "StreamTTS/EnvVariables"
+	twichcomm "StreamTTS/TwichComm"
 )
 
 func main() {
@@ -21,6 +22,19 @@ func main() {
 		ev.SetUserToken()
 	}
 
+	// Setting up user ID
+	if twichcomm.IsTokenValid() {
+		fmt.Printf("User ID: '%v'\n", ev.Enviroment.UserId)
+	} else {
+		panic("Token is somehow invalid")
+	}
+
+	// Setting up broadcaster ID
+	fmt.Printf("Broadcaster: %v\n", ev.Enviroment.BroadcasterLogin)
+	var broadcasterID = twichcomm.GetChannelId(ev.Enviroment.BroadcasterLogin)
+	fmt.Printf("Broadcaster ID: '%v'\n", broadcasterID)
+	ev.Enviroment.BroadcasterId = broadcasterID
+	
 	// fmt.Printf("User token: %v\n", ev.Enviroment.UserToken)
 	var SessionInfo, connectionErr = twichcomm.ConnectToWs(ev.Enviroment.TwichAPIKey)
 	if connectionErr != nil {

@@ -12,13 +12,14 @@ type EnvVariables struct {
 	// Stored in .env file
 	TwichAPIKey string
 	TwichAPISecret string
+	BroadcasterLogin string
 	UserCode string
-	BroadcasterId string
-	UserId string
 	// Stored in temp
 	UserToken string
 	// Got every time
 	WsSessionID string
+	BroadcasterId string
+	UserId string
 }
 
 var Enviroment EnvVariables = EnvVariables{}
@@ -32,8 +33,7 @@ func ReadEnvVariables() (error) {
 	Enviroment.TwichAPIKey = os.Getenv("TWICH_API_KEY")
 	Enviroment.UserCode = os.Getenv("USER_CODE")
 	Enviroment.TwichAPISecret = os.Getenv("TWICH_API_SECRET")
-	Enviroment.UserId = os.Getenv("USER_ID")
-	Enviroment.BroadcasterId = os.Getenv("BROADCASTER_ID")
+	Enviroment.BroadcasterLogin = os.Getenv("BROADCASTER_LOGIN")
 	return nil
 }
 
@@ -54,6 +54,9 @@ func SetUserToken() {
 	vars = append(vars, newLine)
 	writeToEnv(vars)
 	// var _ = os.Setenv("USER_TOKEN", Enviroment.UserToken)
+}
+
+func SetUpUserIDs() {
 }
 
 func writeToEnv(val []string) {

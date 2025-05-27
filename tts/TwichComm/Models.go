@@ -71,3 +71,11 @@ type APIChatMessage struct {
 	Metadata APIMessageMetadata `json:"metadata"`
 	Payload EventPaylaodData `json:"payload"`
 }
+
+type OAuthResponce struct {
+	Client_ID string `json:"client_id"`
+	Login string `json:"login"`
+	Scopes []string `json:"scopes"`
+	User_Id string `json:"user_id"`
+	Expires_In int `json:"expires_in"`
+}
