@@ -11,6 +11,6 @@ func HandleMessage(username, msg string) {
 }
 
 func SayMsg(msg string) {
-	var cmd = exec.Command("espeak", fmt.Sprintf("\"%v\"", msg))
+	var cmd = exec.Command("espeak", fmt.Sprintf("\"%v\"", msg), "&")
 	cmd.Run()
 }

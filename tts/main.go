@@ -8,6 +8,8 @@ import (
 	twichcomm "StreamTTS/TwichComm"
 )
 
+var TerminationChan = make(chan interface{}, 1)
+
 func main() {
 	go RunHTTPServer()
 	var envErr = ev.ReadEnvVariables()
@@ -44,8 +46,7 @@ func main() {
 	// fmt.Printf("Session ID: %v\n", SessionInfo.SessionId)
 	RegisterSubscriptions(SessionInfo)
 
-	for {
-	}
+	<- TerminationChan
 }
 
 func RunHTTPServer() {
