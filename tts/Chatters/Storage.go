@@ -53,4 +53,12 @@ CREATE TABLE Chatters (
 	Username TEXT,
 	ELO INTEGER
 );
+
+CREATE TABLE Voices (
+	UserID INTEGER PRIMARY KEY,
+	Accent  TEXT,
+	Speed   INTEGER,
+	Pitch   INTEGER,
+	Capital INTEGER
+);
 `

@@ -5,7 +5,6 @@ import (
 	ev "StreamTTS/EnvVariables"
 	"fmt"
 	"os/exec"
-	"strings"
 )
 
 func HandleMessage(username, msg string) {
@@ -19,7 +18,7 @@ func HandleMessage(username, msg string) {
 }
 
 func SayMsg(chatterID int, msg string) {
-	var v = chatters.GetVoice(chatterID)
+	var v = chatters.GetVoice(ev.Enviroment.MainDB, chatterID)
 	var speedArg = fmt.Sprintf("%d", v.Speed)
 	var pitchArg = fmt.Sprintf("%d", v.Pitch)
 	var capArg = fmt.Sprintf("-k%d", v.Capital)

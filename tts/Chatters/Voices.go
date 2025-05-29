@@ -1,6 +1,9 @@
 package chatters
 
-import "math/rand"
+import (
+	"database/sql"
+	"math/rand"
+)
 
 type Voice struct {
 	UserID  int
@@ -31,14 +34,23 @@ var Voices = []string{
 	// TODO: finish
 }
 
-func GetVoice(UID int) Voice {
+func GetVoice(conn *sql.DB, UID int) Voice {
+	// From cache
 	var val, exists = VoicesCache[UID]
 	if exists {
 		return val
 	}
+	// From DB
+	var storedVoice, stored = GetVoiceFromDB(UID, conn)
+	if stored {
+		VoicesCache[UID] = *storedVoice
+		return *storedVoice
+	}
+	// New
 	var newVoice = GenerateRandomVoice()
 	newVoice.UserID = UID
 	VoicesCache[UID] = newVoice
+	RegisterVoice(UID, newVoice, conn) 
 	return newVoice
 }
 
@@ -52,5 +64,27 @@ func GenerateRandomVoice() Voice {
 		Speed: speed,
 		Pitch: pitch,
 		Capital: cap,
+	}
+}
+
+func GetVoiceFromDB(UID int, conn *sql.DB) (*Voice, bool) {
+	var rows, err = conn.Query("select * from Voices where UserID = $1", UID)
+	if err != nil {
+		return nil, false
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var outp = Voice{}
+		rows.Scan(&outp.UserID, &outp.Accent, &outp.Speed, &outp.Pitch, &outp.Capital)
+		return &outp, true
+	}
+	return nil, false
+}
+
+func RegisterVoice(UID int, toSave Voice, conn *sql.DB) {
+	var _, err = conn.Exec("insert into Voices (UserID,	Accent,	Speed, Pitch, Capital) values ($1, $2, $3, $4, $5)", 
+		UID, toSave.Accent, toSave.Speed, toSave.Pitch, toSave.Capital)
+	if err != nil {
+		return
 	}
 }
