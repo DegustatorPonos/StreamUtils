@@ -4,6 +4,8 @@ import (
 	ev "StreamTTS/EnvVariables"
 	messagehandling "StreamTTS/MessageHandling"
 	twichcomm "StreamTTS/TwichComm"
+	"encoding/json"
+	"fmt"
 	"math/rand"
 	"slices"
 )
@@ -15,6 +17,11 @@ type State struct {
 	Messages chan string
 }
 
+type MessageEvent struct {
+	Type string `json:"type"`
+	Message string `json:"message"`
+}
+
 var CurrentState *State = nil
 
 func Init() {
@@ -24,7 +31,7 @@ func Init() {
 	}
 
 	messagehandling.RegisterHandler(&messagehandling.Handler{
-		Condition: ChechForEvent, 
+		Condition: CheckForEvent, 
 		Action: Action,
 	})
 }
@@ -44,11 +51,23 @@ func GetRandomChatterID() *twichcomm.UserInfo {
 	return &users.Data[rand.Intn(len(users.Data))]
 }
 
-func ChechForEvent(username string, _ string) bool {
+func CheckForEvent(username string, _ string) bool {
 	// fmt.Printf("Comparing %v and %v - %v\n", username, CurrentState.CurrentCahtter.UserName, username == CurrentState.CurrentCahtter.UserName)
 	return username == CurrentState.CurrentCahtter.UserName
 }
 
 func Action(_ string, message string) {
-	CurrentState.Messages <- message
+	var event = MessageEvent{Type: "message", Message: message}
+	var payload, marshalErr = json.Marshal(event)
+	if marshalErr != nil {
+		return
+	}
+	for i, conn := range _WSConnections {
+		var _, err = conn.Write(payload)
+		// The connection is probably closed
+		if err != nil {
+			fmt.Println("Deleted closed connection")
+			slices.Delete(_WSConnections, i, i+1)
+		}
+	}
 }

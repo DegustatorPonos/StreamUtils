@@ -2,15 +2,21 @@ package randomchatters
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"os"
+
+	"golang.org/x/net/websocket"
 )
 
 const ViewsLocation = "RandomChatters/View"
 
+var _WSConnections = []*websocket.Conn{}
+
 func RegisterEndpoints() {
 		http.HandleFunc("/rnd", Index) 
-		http.HandleFunc("/api/rnd/getCurrentMessage", GetMostRecentMessage) 
+		http.Handle("/api/rnd/ws", websocket.Handler(AcceptWS))
+		http.HandleFunc("/api/rnd/dumpMessage", GetMostRecentMessage)
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -30,4 +36,17 @@ func GetMostRecentMessage(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprintf(w, "%v\n", <-CurrentState.Messages)
 	fmt.Fprintf(w, "%d\n", len(CurrentState.Messages))
+}
+
+func AcceptWS(ws *websocket.Conn) {
+	_WSConnections = append(_WSConnections, ws)
+	var buf = make([]byte, 1024)
+	for {
+		var _, err = ws.Read(buf)
+		if err == io.EOF {
+			break
+		}
+		ws.Write(buf)
+	}
+	ws.Close()
 }
