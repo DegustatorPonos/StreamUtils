@@ -39,14 +39,17 @@ func main() {
 	var broadcasterID = twichcomm.GetChannelId(ev.Enviroment.BroadcasterLogin)
 	fmt.Printf("Broadcaster ID: '%v'\n", broadcasterID)
 	ev.Enviroment.BroadcasterId = broadcasterID
-	ev.Enviroment.ModeratorID = twichcomm.GetChannelId(ev.Enviroment.ModeratorLogin)
 	
 	var SessionInfo, connectionErr = twichcomm.ConnectToWs(ev.Enviroment.TwichAPIKey)
 	if connectionErr != nil {
 		fmt.Println(connectionErr.Error())
 		return
 	}
-	// fmt.Printf("Session ID: %v\n", SessionInfo.SessionId)
+
+	if ev.Config.EnableRandomChatter {
+		randomchatters.Init()
+	}
+
 	RegisterSubscriptions(SessionInfo)
 
 	<- TerminationChan
@@ -55,7 +58,7 @@ func main() {
 func RunHTTPServer() {
 	http.HandleFunc("/auth", twichcomm.AuthKeyHttpEndpoint) 
 	if ev.Config.EnableRandomChatter {
-		http.HandleFunc("/rnd", randomchatters.Index) 
+		randomchatters.RegisterEndpoints()
 	}
 	http.ListenAndServe(":3000", nil)
 }

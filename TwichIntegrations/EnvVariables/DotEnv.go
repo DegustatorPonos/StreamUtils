@@ -10,6 +10,8 @@ import (
 )
 
 type AppConfig struct {
+	// TTS will say all the messages
+	EnableTTS bool
 	// Enables random chatter calls functionality
 	EnableRandomChatter bool
 }
@@ -31,6 +33,7 @@ type EnvVariables struct {
 
 // Functionality
 var Config AppConfig = AppConfig{
+	EnableTTS: false,
 	EnableRandomChatter: true,
 }
 
