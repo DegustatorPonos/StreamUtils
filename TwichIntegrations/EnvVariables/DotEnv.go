@@ -9,6 +9,11 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type AppConfig struct {
+	// Enables random chatter calls functionality
+	EnableRandomChatter bool
+}
+
 type EnvVariables struct {
 	// Stored in .env file
 	TwichAPIKey string
@@ -22,6 +27,11 @@ type EnvVariables struct {
 	BroadcasterId string
 	UserId string
 	MainDB *sql.DB
+}
+
+// Functionality
+var Config AppConfig = AppConfig{
+	EnableRandomChatter: true,
 }
 
 var Enviroment EnvVariables = EnvVariables{}
@@ -56,9 +66,6 @@ func SetUserToken() {
 	vars = append(vars, newLine)
 	writeToEnv(vars)
 	// var _ = os.Setenv("USER_TOKEN", Enviroment.UserToken)
-}
-
-func SetUpUserIDs() {
 }
 
 func writeToEnv(val []string) {

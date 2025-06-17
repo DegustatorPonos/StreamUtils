@@ -16,7 +16,7 @@ const AuthLink string =
 ?response_type=code
 &client_id=%v
 &redirect_uri=http://localhost:3000/auth
-&scope=user:read:chat`
+&scope=user:read:chat+moderator:read:chatters`
 
 const OAuthLink = "https://id.twitch.tv/oauth2/token"
 

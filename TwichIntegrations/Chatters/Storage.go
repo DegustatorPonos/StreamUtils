@@ -51,7 +51,8 @@ const DBInitSequence string = `
 CREATE TABLE Chatters (
 	Id INTEGER PRIMARY KEY AUTOINCREMENT, 
 	Username TEXT,
-	ELO INTEGER
+	ELO INTEGER,
+	Status INT
 );
 
 CREATE TABLE Voices (

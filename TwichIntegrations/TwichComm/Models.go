@@ -59,6 +59,11 @@ type ChatMessage struct {
 	Text string `json:"text"`
 }
 
+type Badge struct {
+	Set_ID string  `json:"set_id"`
+	Id string `json:"id"`
+}
+
 type SubscriptionInfo struct {
 	Id string `json:"id"`
 	Status string `json:"status"`

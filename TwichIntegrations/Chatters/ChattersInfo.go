@@ -9,6 +9,7 @@ type Chatter struct {
 	Id int
 	Username string
 	ELO int
+	ShadowbanID int
 }
 
 // Username to ID

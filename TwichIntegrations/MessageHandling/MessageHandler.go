@@ -7,6 +7,9 @@ import (
 	"os/exec"
 )
 
+var commands = map[string]func(string) {
+}
+
 func HandleMessage(username, msg string) {
 	var UserID = chatters.GetChatterID(username, ev.Enviroment.MainDB)
 	if UserID < 0 {
@@ -25,4 +28,7 @@ func SayMsg(chatterID int, msg string) {
 	// var cmd = exec.Command("espeak", fmt.Sprintf("\"%v\"", msg), "&")
 	var cmd = exec.Command("espeak", fmt.Sprintf("\"%v\"", msg), "-s", speedArg, "-p", pitchArg, capArg, "&")
 	cmd.Run()
+}
+
+func HandleCommand(username, msg string) {
 }

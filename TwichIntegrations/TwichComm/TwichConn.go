@@ -12,7 +12,14 @@ import (
 const TwichWS_URI string = "wss://eventsub.wss.twitch.tv/ws"
 const Origin string = "http://localhost"
 
+// If set to true shows connection/auth JSONS
 const ShowMessages bool = true
+
+// If set to true shows JSONs from event API
+const ShowAPIResp bool = true
+
+// Buffer size
+const WSWindowScale int = 4096
 
 type ConnectionInfo struct {
 	SessionId string
@@ -40,7 +47,7 @@ func ConnectToWs(ApiKey string) (*ConnectionInfo, error) {
 func ConnectionRoutine(ws *websocket.Conn) {
 	defer ws.Close()
 	for {
-		var buf = make([]byte, 2048)
+		var buf = make([]byte, WSWindowScale)
 		var i, err = ws.Read(buf) 
 		if err != nil {
 			continue
@@ -60,9 +67,10 @@ func ConnectionRoutine(ws *websocket.Conn) {
 				fmt.Printf("Error: %v\n", unmErr.Error())
 				continue
 			}
-			// fmt.Println(msg.Payload.Event.Message.Text)
+			if ShowAPIResp {
+				fmt.Printf("Message: %v \n", string(buf))
+			}
 			msgs.HandleMessage(msg.Payload.Event.Chatter_User_Name, msg.Payload.Event.Message.Text)
-			// fmt.Printf("Message: %v \n", string(buf))
 		}
 	}
 }

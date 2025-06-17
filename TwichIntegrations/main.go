@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	ev "StreamTTS/EnvVariables"
-	twichcomm "StreamTTS/TwichComm"
 	chatters "StreamTTS/Chatters"
+	ev "StreamTTS/EnvVariables"
+	randomchatters "StreamTTS/RandomChatters"
+	twichcomm "StreamTTS/TwichComm"
 )
 
 var TerminationChan = make(chan interface{}, 1)
@@ -38,8 +39,8 @@ func main() {
 	var broadcasterID = twichcomm.GetChannelId(ev.Enviroment.BroadcasterLogin)
 	fmt.Printf("Broadcaster ID: '%v'\n", broadcasterID)
 	ev.Enviroment.BroadcasterId = broadcasterID
+	ev.Enviroment.ModeratorID = twichcomm.GetChannelId(ev.Enviroment.ModeratorLogin)
 	
-	// fmt.Printf("User token: %v\n", ev.Enviroment.UserToken)
 	var SessionInfo, connectionErr = twichcomm.ConnectToWs(ev.Enviroment.TwichAPIKey)
 	if connectionErr != nil {
 		fmt.Println(connectionErr.Error())
@@ -53,6 +54,9 @@ func main() {
 
 func RunHTTPServer() {
 	http.HandleFunc("/auth", twichcomm.AuthKeyHttpEndpoint) 
+	if ev.Config.EnableRandomChatter {
+		http.HandleFunc("/rnd", randomchatters.Index) 
+	}
 	http.ListenAndServe(":3000", nil)
 }
 
