@@ -11,14 +11,15 @@ import (
 const UserIdentURL string = "https://api.twitch.tv/helix/users"
 const ViewerListURL string = "https://api.twitch.tv/helix/chat/chatters"
 
-type ChannelApiResp struct {
+type ChannelInfoResponce struct {
 	Data []ChannelInfo `json:"data"`
 }
 
 type ChannelInfo struct {
 	Id string `json:"id"`
 	Login string `json:"login"`
-	Display_Name string `json:"display_name"`
+	DisplayName string `json:"display_name"`
+	ProfileImageUrl string `json:"profile_image_url"`
 }
 
 type UserInfo struct {
@@ -40,9 +41,9 @@ func GetChannelId(login string) string {
 	return ApiResp.Data[0].Id
 }
 
-func GetChannelInfo(login string) (*ChannelApiResp, error) {
+func GetChannelInfo(channelName string) (*ChannelInfoResponce, error) {
 	var client = http.Client{}
-	var req, _ = http.NewRequest("GET", fmt.Sprintf("%v?login=%v", UserIdentURL, login), nil)
+	var req, _ = http.NewRequest("GET", fmt.Sprintf("%v?login=%v", UserIdentURL, channelName), nil)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", ev.Enviroment.UserToken))
 	req.Header.Set("Client-Id", ev.Enviroment.TwichAPIKey)
 	var resp, err = client.Do(req)
@@ -54,7 +55,7 @@ func GetChannelInfo(login string) (*ChannelApiResp, error) {
 		fmt.Print("Channel info: ")
 		fmt.Println(string(body))
 	}
-	var ApiResp = ChannelApiResp{}
+	var ApiResp = ChannelInfoResponce{}
 	var jsonErr = json.Unmarshal(body, &ApiResp)
 	if jsonErr != nil {
 		return nil, jsonErr

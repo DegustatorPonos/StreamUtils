@@ -20,6 +20,11 @@ func main() {
 		return
 	}
 
+	// Setting up this app's API key
+	if ev.Enviroment.AppAPIKey == "" {
+		ev.RegenerateAPIKey()
+	}
+
 	var isUserTokenValid = twichcomm.AuthenticateApp() 
 	// Waiting for auth 
 	ev.Enviroment.UserToken = <- twichcomm.AuthKeyChan
@@ -27,18 +32,13 @@ func main() {
 		ev.SetUserToken()
 	}
 
-	// Setting up user ID
-	if twichcomm.IsTokenValid() {
-		fmt.Printf("User ID: '%v'\n", ev.Enviroment.UserId)
-	} else {
+	// Double-checking user token
+	if !twichcomm.IsTokenValid() {
 		panic("Token is somehow invalid")
 	}
 
 	// Setting up broadcaster ID
-	fmt.Printf("Broadcaster: %v\n", ev.Enviroment.BroadcasterLogin)
-	var broadcasterID = twichcomm.GetChannelId(ev.Enviroment.BroadcasterLogin)
-	fmt.Printf("Broadcaster ID: '%v'\n", broadcasterID)
-	ev.Enviroment.BroadcasterId = broadcasterID
+	ev.Enviroment.BroadcasterId = twichcomm.GetChannelId(ev.Enviroment.BroadcasterLogin)
 	
 	var SessionInfo, connectionErr = twichcomm.ConnectToWs(ev.Enviroment.TwichAPIKey)
 	if connectionErr != nil {

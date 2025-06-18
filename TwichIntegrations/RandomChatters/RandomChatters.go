@@ -13,7 +13,7 @@ import (
 const _MESSAGES_BUF_LENGTH int = 16
 
 type State struct {
-	CurrentCahtter *twichcomm.UserInfo
+	CurrentCahtter *twichcomm.ChannelInfo
 	Messages chan string
 }
 
@@ -22,17 +22,27 @@ type MessageEvent struct {
 	Message string `json:"message"`
 }
 
+type DisconnectEvent struct {
+	Type string `json:"type"`
+}
+
+type ConnectEvent struct {
+	Type string `json:"type"`
+	UserName string `json:"username"`
+	UserPfp string `json:"userpfp"`
+}
+
 var CurrentState *State = nil
 
 func Init() {
 	CurrentState = &State{
-		CurrentCahtter: &twichcomm.UserInfo{UserLogin: "physickdev", UserName: "physickdev"},
+		CurrentCahtter: &twichcomm.ChannelInfo{Login: "physickdev", DisplayName: "physickdev"},
 		Messages: make(chan string, _MESSAGES_BUF_LENGTH),
 	}
 
 	messagehandling.RegisterHandler(&messagehandling.Handler{
-		Condition: CheckForEvent, 
-		Action: Action,
+		Condition: HandlerCondition, 
+		Action: HandlerAction,
 	})
 }
 
@@ -51,22 +61,60 @@ func GetRandomChatterID() *twichcomm.UserInfo {
 	return &users.Data[rand.Intn(len(users.Data))]
 }
 
-func CheckForEvent(username string, _ string) bool {
-	// fmt.Printf("Comparing %v and %v - %v\n", username, CurrentState.CurrentCahtter.UserName, username == CurrentState.CurrentCahtter.UserName)
-	return username == CurrentState.CurrentCahtter.UserName
+// Is called when new chatter is selected through API
+// New user info should be filled when invoking this function
+func onConnect() {
+	var event = ConnectEvent{
+		Type: "connect",
+		UserName: CurrentState.CurrentCahtter.DisplayName,
+		UserPfp: CurrentState.CurrentCahtter.ProfileImageUrl,
+	}
+	var payload, marshalErr = json.Marshal(event)
+	if marshalErr != nil {
+		return
+	}
+	sendPayloadToWS(&payload)
 }
 
-func Action(_ string, message string) {
+// Is called when new chatter is disconnectd through API
+func onDisconnect() {
+	var event = DisconnectEvent{
+		Type: "disconnect",
+	}
+	var payload, marshalErr = json.Marshal(event)
+	if marshalErr != nil {
+		return
+	}
+	sendPayloadToWS(&payload)
+}
+
+func HandlerCondition(username string, _ string) bool {
+	if CurrentState.CurrentCahtter == nil {
+		return false
+	}
+	// fmt.Printf("Comparing %v and %v - %v\n", username, CurrentState.CurrentCahtter.UserName, username == CurrentState.CurrentCahtter.UserName)
+	return username == CurrentState.CurrentCahtter.DisplayName
+}
+
+func HandlerAction(_ string, message string) {
 	var event = MessageEvent{Type: "message", Message: message}
 	var payload, marshalErr = json.Marshal(event)
 	if marshalErr != nil {
 		return
 	}
+	sendPayloadToWS(&payload)
+}
+
+func sendPayloadToWS(payload *[]byte) {
 	for i, conn := range _WSConnections {
-		var _, err = conn.Write(payload)
-		// The connection is probably closed
-		if err != nil {
+		if conn == nil {
 			fmt.Println("Deleted closed connection")
+			slices.Delete(_WSConnections, i, i+1)
+			continue
+		}
+		var _, err = conn.Write(*payload)
+		if err != nil {
+			fmt.Println("Deleted broken connection")
 			slices.Delete(_WSConnections, i, i+1)
 		}
 	}
