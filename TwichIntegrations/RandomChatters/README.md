@@ -32,7 +32,7 @@ A new chatter is connectd. The schema is as follows:
 A current chatter is disconnectd. The schema is as follows:
 ```
 {
-	"type": "disconnect",
+	"type": "disconnect"
 }
 ```
 
@@ -45,6 +45,20 @@ Selects a random not-ignored user from chat and sends "connect" message to a web
 
 - ```/api/rnd/disconnect```
 Disconnects currently selected chatter and sends "disconnect" message to web view
+
+- ```/api/rnd/bannedusers```
+Returns a list of all ignored chatters. Schema is as follows:
+```
+{
+    "chatters": string[]
+}
+```
+
+- ```/api/rnd/ban?user=<username>```
+Adds a user to blocked list. Uses displayed username
+
+- ```/api/rnd/pardon?user=<username>```
+Removes a user from blocked list. Uses username from list
 
 ### Authentication
 To access the control API endpoints you have to proveide an app token. It is accessible in .env file

@@ -46,7 +46,7 @@ func Init() {
 	})
 }
 
-var ChattersIgnore []string = []string{"physickdev"}
+var IgnoredChatters []string = []string{"physickdev", "PaketikCrew"}
 
 func GetRandomChatterID() *twichcomm.UserInfo {
 	var users, err = twichcomm.GetStreamViewers(ev.Enviroment.BroadcasterId, ev.Enviroment.UserId)
@@ -54,7 +54,7 @@ func GetRandomChatterID() *twichcomm.UserInfo {
 		return nil 
 	}
 	for i, u := range users.Data {
-		if slices.Contains(ChattersIgnore, u.UserLogin) {
+		if slices.Contains(IgnoredChatters, u.UserLogin) {
 			users.Data = slices.Delete(users.Data, i, i+1)
 		}
 	}
