@@ -106,16 +106,20 @@ func HandlerAction(_ string, message string) {
 }
 
 func sendPayloadToWS(payload *[]byte) {
+	var toDelete = make([]int, 0)
 	for i, conn := range _WSConnections {
 		if conn == nil {
 			fmt.Println("Deleted closed connection")
-			slices.Delete(_WSConnections, i, i+1)
+			toDelete = append(toDelete, i)
 			continue
 		}
 		var _, err = conn.Write(*payload)
 		if err != nil {
-			fmt.Println("Deleted broken connection")
-			slices.Delete(_WSConnections, i, i+1)
+			fmt.Println("Deleted faulty connection")
+			toDelete = append(toDelete, i)
 		}
+	}
+	for i, v := range toDelete {
+		_WSConnections = append(_WSConnections[:v-i], _WSConnections[v-i+1:]...)
 	}
 }

@@ -21,7 +21,7 @@ var _WSConnections = []*websocket.Conn{}
 func RegisterEndpoints() {
 		http.Handle("/api/rnd/ws", websocket.Handler(handleWS))
 
-		http.HandleFunc("/rnd", indexView) 
+		http.HandleFunc("/rnd/view", indexView) 
 		http.HandleFunc("/rnd/control", controlView) 
 
 		http.HandleFunc("/api/rnd/connect", connectAPIRequest)
@@ -120,6 +120,15 @@ func GetMostRecentMessage(w http.ResponseWriter, r *http.Request) {
 
 func handleWS(ws *websocket.Conn) {
 	_WSConnections = append(_WSConnections, ws)
+	if CurrentState != nil && CurrentState.CurrentCahtter != nil {
+		var event = ConnectEvent{
+			Type: "connect",
+			UserName: CurrentState.CurrentCahtter.DisplayName,
+			UserPfp: CurrentState.CurrentCahtter.ProfileImageUrl,
+		}
+		var payload, _ = json.Marshal(event)
+		ws.Write(payload)
+	}
 	var buf = make([]byte, 1024)
 	for {
 		var _, err = ws.Read(buf)
