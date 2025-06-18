@@ -30,6 +30,7 @@ func RegisterEndpoints() {
 		http.HandleFunc("/api/rnd/bannedusers", ignoredChatterAPIRequest) 
 		http.HandleFunc("/api/rnd/ban", banAPIRequest) 
 		http.HandleFunc("/api/rnd/pardon", pardonAPIRequest) 
+		http.HandleFunc("/api/rnd/currnetchatter", getCurrentUserAPIREquest) 
 
 		http.HandleFunc("/rnd/style.css", cssEndpoint) 
 		http.HandleFunc("/rnd/control.js", controlScriptEndpoint) 
@@ -66,10 +67,6 @@ func disconnectAPIRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func ignoredChatterAPIRequest(w http.ResponseWriter, r *http.Request) {
-	if !authorizeRequest(r) {
-		w.WriteHeader(403)
-		return
-	}
 	type list struct {
 		Chatters []string `json:"chatters"`
 	}
@@ -80,6 +77,14 @@ func ignoredChatterAPIRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(body)
+}
+
+func getCurrentUserAPIREquest(w http.ResponseWriter, r *http.Request) {
+	if CurrentState == nil || CurrentState.CurrentCahtter == nil {
+		w.Write([]byte("{ \"username\": \"\" }"))
+	} else {
+		fmt.Fprintf(w, "{ \"username\": \"%v\" }", CurrentState.CurrentCahtter.DisplayName)
+	}
 }
 
 func banAPIRequest(w http.ResponseWriter, r *http.Request) {

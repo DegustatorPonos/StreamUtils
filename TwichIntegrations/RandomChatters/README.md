@@ -53,12 +53,21 @@ Returns a list of all ignored chatters. Schema is as follows:
     "chatters": string[]
 }
 ```
+This endpoint is not protected
 
 - ```/api/rnd/ban?user=<username>```
 Adds a user to blocked list. Uses displayed username
 
 - ```/api/rnd/pardon?user=<username>```
 Removes a user from blocked list. Uses username from list
+
+ - ```/api/rnd/currnetchatter``` 
+ Returns the name if the current user. Schema is as follows:
+```
+{
+    "username": string
+}
+This endpoint is not protected
 
 ### Authentication
 To access the control API endpoints you have to proveide an app token. It is accessible in .env file

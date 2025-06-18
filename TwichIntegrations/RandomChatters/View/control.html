@@ -1,5 +1,170 @@
-<html>
-    <body>
-        <h1>Control</h1>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Streamers shit</title>
+    <meta charset="utf-8">
+    <script src="control.js"> </script> 
+</head>
+
+<body>
+
+    <div class="admin_panel">
+        <div>
+            <h1>Control panel</h1>
+            <textarea id="ApiKeyField" placeholder="API key"></textarea>
+        </div>
+        <div class="buttons">
+            <button id="Invite" onclick="CallAPI(ConnectEndpoint)">Invite</button>
+            <button id="Kick"onclick="CallAPI(DisconnectEndpoint)">Kick</button>
+            <button id="Ban" onclick="BanUser()">Ban</button>
+        </div>
+        <div class="table">
+            <table >
+                <tbody id="bantable">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <p class="madeby">Made by <a href="https://github.com/LooQueenXIX" target="_blank">TolyaSockser</a> and <a
+            href="https://github.com/DegustatorPonos" target="_blank">Physick</a></p>
+
+</body>
+
+<script>
+    FillBanTable();
+</script>
+
 </html>
+
+<style>
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+
+h1 {
+    padding-top: 20px;
+}
+
+.user_page {
+    text-align: center;
+}
+
+.admin_panel{
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 10px;
+    width: 630px;
+    height: auto;
+    background-color: rgb(233, 177, 24);
+    border-radius: 10px;
+}
+
+.buttons, .table {
+    margin-top: 9px;
+
+}
+
+.nicks {
+    padding-left: 20px;
+    overflow-wrap: break-word;
+    text-align: left;
+    font-size: 20px;
+    color: rgb(255, 251, 3);
+    width: 400px;
+}
+
+.table {
+    overflow: scroll;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 8px;
+    border: 1px solid black;
+    background-color: rgba(66, 58, 75, 0.74);
+    border-radius: 10px;
+    width: 590px;
+    height: 200px;
+    text-align: left;
+}
+
+
+#avatar {
+    width: 500px;
+    height: 300px;
+    z-index: 1;
+    position: relative;
+
+}
+
+#nickname {
+    overflow: hidden;
+    width: 100%;
+    max-width: 500px;
+    font-size: 40px;
+    top: 80%;
+    margin: 0;
+    position: absolute;
+    color: rgb(228, 9, 20);
+    z-index: 2;
+}
+
+#lost_connection {
+    width: 50px;
+    position: absolute;
+    left: 21%;
+    top: 2%;
+    z-index: 1;
+}
+
+#ava_img #lost_connection {
+    width: 300px;
+    height: 300px;
+    height: auto;
+}
+
+#subtitle {
+    overflow-wrap: break-word;
+    overflow: hidden;
+    width: 500px;
+    height: 200px;
+}
+
+#text_panel {
+    overflow:visible;
+    text-align: left;
+    width: 550px;
+    height: 30px;
+    border-radius: 10px;
+    border: 1px solid black;
+    background-color: rgba(66, 58, 75, 0.74);
+}
+
+button, textarea {
+    font-size: 20px;
+    color: rgb(255, 251, 3);
+    min-width: none;
+    padding: 15px 30px 15px 30px;
+    width: 200px;
+    border-radius: 10px;
+    background-color: rgba(66, 58, 75, 0.74);
+    border: 1px solid black
+}
+
+button:active {
+    background-color: rgba(24, 21, 27, 0.74);
+}
+
+textarea {
+    min-width: 550px;
+    max-width: 550px;
+    min-height: 30px;
+    max-height: 30px;
+}
+
+.madeby {
+    opacity: 0.5;
+}
+
+</style>

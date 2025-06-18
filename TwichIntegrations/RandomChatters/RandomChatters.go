@@ -54,7 +54,7 @@ func GetRandomChatterID() *twichcomm.UserInfo {
 		return nil 
 	}
 	for i, u := range users.Data {
-		if slices.Contains(IgnoredChatters, u.UserLogin) {
+		if slices.Contains(IgnoredChatters, u.UserName) {
 			users.Data = slices.Delete(users.Data, i, i+1)
 		}
 	}
