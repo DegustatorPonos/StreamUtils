@@ -13,7 +13,6 @@ Send any mesage to socket and it will reply with this exact payload. Can be used
 A message is sent to connection when the active chatter sends something in chat. The schema is as follows:
 ```
 {
-
 	"type": "message",
     "message": <message>
 }

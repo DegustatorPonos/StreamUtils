@@ -23,32 +23,15 @@ func RegisterEndpoints() {
 		http.HandleFunc("/api/rnd/connect", connectAPIRequest)
 		http.HandleFunc("/api/rnd/disconnect", disconnectAPIRequest)
 		http.HandleFunc("/api/rnd/dumpMessage", GetMostRecentMessage)
+		http.HandleFunc("/rnd/style.css", cssEndpoint) 
+		http.HandleFunc("/rnd/control.js", controlScriptEndpoint) 
+		http.HandleFunc("/rnd/view.js", viewScriptEndpoint) 
 }
 
 // Checks if the request includes the valid token
 func authorizeRequest(r *http.Request) bool {
 	var provided = r.URL.Query().Get("token")
 	return provided == ev.Enviroment.AppAPIKey
-}
-
-func indexView(w http.ResponseWriter, r *http.Request) {
-	var ViewPath = fmt.Sprintf("%v/index.html", ViewsLocation)
-	var file, fopenerr = os.ReadFile(ViewPath)
-	if fopenerr != nil {
-		fmt.Fprintf(w, "<h1>An error occured while reading the requested file</h1><p>Original error: %v</p>", fopenerr.Error())
-		return
-	}
-	fmt.Fprint(w, string(file))
-}
-
-func controlView(w http.ResponseWriter, r *http.Request) {
-	var ViewPath = fmt.Sprintf("%v/control.html", ViewsLocation)
-	var file, fopenerr = os.ReadFile(ViewPath)
-	if fopenerr != nil {
-		fmt.Fprintf(w, "<h1>An error occured while reading the requested file</h1><p>Original error: %v</p>", fopenerr.Error())
-		return
-	}
-	fmt.Fprint(w, string(file))
 }
 func connectAPIRequest(w http.ResponseWriter, r *http.Request) {
 	if !authorizeRequest(r) {
@@ -94,3 +77,34 @@ func handleWS(ws *websocket.Conn) {
 	}
 	ws.Close()
 }
+
+func serveFile(w http.ResponseWriter, r *http.Request, fileName string) {
+	var filePath = fmt.Sprintf("%v/%v", ViewsLocation, fileName)
+	var file, err = os.ReadFile(filePath)
+	if err != nil {
+		w.WriteHeader(404)
+		return
+	}
+	fmt.Fprint(w, string(file))
+}
+
+func indexView(w http.ResponseWriter, r *http.Request) {
+	serveFile(w, r, "index.html")
+}
+
+func controlScriptEndpoint(w http.ResponseWriter, r *http.Request) {
+	serveFile(w, r, "control.js")
+}
+
+func viewScriptEndpoint(w http.ResponseWriter, r *http.Request) {
+	serveFile(w, r, "view.js")
+}
+
+func cssEndpoint(w http.ResponseWriter, r *http.Request) {
+	serveFile(w, r, "style.css")
+}
+
+func controlView(w http.ResponseWriter, r *http.Request) {
+	serveFile(w, r, "control.html")
+}
+
