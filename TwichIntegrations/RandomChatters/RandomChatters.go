@@ -36,7 +36,7 @@ var CurrentState *State = nil
 
 func Init() {
 	CurrentState = &State{
-		CurrentCahtter: &twichcomm.ChannelInfo{Login: "physickdev", DisplayName: "physickdev"},
+		CurrentCahtter: nil,
 		Messages: make(chan string, _MESSAGES_BUF_LENGTH),
 	}
 
@@ -46,19 +46,32 @@ func Init() {
 	})
 }
 
-var IgnoredChatters []string = []string{"physickdev", "PaketikCrew"}
+var IgnoredChatters []string = []string{"physickdev", "personthemanhumane"}
 
-func GetRandomChatterID() *twichcomm.UserInfo {
+func GetRandomChatter() *twichcomm.ChannelInfo {
 	var users, err = twichcomm.GetStreamViewers(ev.Enviroment.BroadcasterId, ev.Enviroment.UserId)
 	if err != nil {
 		return nil 
 	}
-	for i, u := range users.Data {
-		if slices.Contains(IgnoredChatters, u.UserName) {
-			users.Data = slices.Delete(users.Data, i, i+1)
+	var possible = make([]string, 0)
+	for _, u := range users.Data {
+		if !(slices.Contains(IgnoredChatters, u.UserName) || slices.Contains(IgnoredChatters, u.UserLogin)) {
+			possible = append(possible, u.UserLogin)
 		}
 	}
-	return &users.Data[rand.Intn(len(users.Data))]
+	if len(possible) == 0 {
+		return &twichcomm.ChannelInfo{
+			DisplayName: "Nobody",
+		}
+	}
+	var userData, dataErr = twichcomm.GetChannelInfo(possible[rand.Intn(len(possible))])
+	if dataErr != nil {
+		fmt.Printf("An error occured during ercieving user data. Original error: %s\n", dataErr.Error())
+		return &twichcomm.ChannelInfo{
+			DisplayName: "Nobody",
+		}
+	}
+	return &userData.Data[0]
 }
 
 // Is called when new chatter is selected through API

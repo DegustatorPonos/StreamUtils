@@ -9,7 +9,7 @@ import (
 	"slices"
 
 	ev "StreamTTS/EnvVariables"
-	twichcomm "StreamTTS/TwichComm"
+	// twichcomm "StreamTTS/TwichComm"
 
 	"golang.org/x/net/websocket"
 )
@@ -48,12 +48,8 @@ func connectAPIRequest(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
 		return
 	}
-	var channelInfo, err = twichcomm.GetChannelInfo("physickdev")
-	if err != nil {
-		w.WriteHeader(500)
-		return
-	}
-	CurrentState.CurrentCahtter = &channelInfo.Data[0]
+	var channelInfo = GetRandomChatter()
+	CurrentState.CurrentCahtter = channelInfo
 	onConnect()
 }
 

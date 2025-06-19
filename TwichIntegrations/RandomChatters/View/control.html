@@ -13,6 +13,7 @@
         <div>
             <h1>Control panel</h1>
             <textarea id="ApiKeyField" placeholder="API key"></textarea>
+            <h2 id="CurrentUser">No user connected</h2>
         </div>
         <div class="buttons">
             <button id="Invite" onclick="CallAPI(ConnectEndpoint)">Invite</button>
@@ -32,6 +33,7 @@
 </body>
 
 <script>
+    FillUsernameSpace();
     FillBanTable();
 </script>
 
@@ -46,6 +48,11 @@ body {
 
 h1 {
     padding-top: 20px;
+}
+
+h2 {
+ text-align: left;
+ margin: 10px;
 }
 
 .user_page {
@@ -77,7 +84,7 @@ h1 {
 }
 
 .table {
-    overflow: scroll;
+    overflow-y: scroll;
     margin-left: auto;
     margin-right: auto;
     padding: 8px;
@@ -85,7 +92,7 @@ h1 {
     background-color: rgba(66, 58, 75, 0.74);
     border-radius: 10px;
     width: 590px;
-    height: 200px;
+    height: 500px;
     text-align: left;
 }
 

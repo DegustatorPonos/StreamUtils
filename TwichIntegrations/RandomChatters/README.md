@@ -71,5 +71,5 @@ This endpoint is not protected
 
 ### Authentication
 To access the control API endpoints you have to proveide an app token. It is accessible in .env file
-You have to append it to your HTTP request via URL query like that:
+You have to append it to your HTTP request via URL query 'token' param like that:
 ``` /api/end/connect?token=<your token> ```

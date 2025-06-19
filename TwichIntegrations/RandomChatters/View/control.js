@@ -12,6 +12,7 @@ function CallAPI(endpoint) {
         if(x.status != 200) {
             console.error("Invalid token")
         }
+        FillUsernameSpace();
     });
 }
 
@@ -36,6 +37,7 @@ function BanUser() {
     fetch(CurrentUserEndpoint).then(r => {
         if(r.ok) r.json().then(data => {
             let username = data.username;
+            if(username == "") return;
             console.log("Current user: " + username);
             fetch(`${BanEndpoint}?user=${username}&token=${API_Key}`).then((r) => {
                 if(r.status == 200 && document.getElementById(`${username}_rec`) == undefined) {
@@ -60,6 +62,20 @@ function FillBanTable() {
                 }
             });
         });
+}
+
+function FillUsernameSpace() {
+    let usernameSpace = document.getElementById("CurrentUser");
+    fetch(CurrentUserEndpoint).then(r => {
+        if(r.ok) r.json().then(data => {
+            let username = data.username;
+            if (username == "") {
+                usernameSpace.innerHTML = "No user connected";
+            } else {
+                usernameSpace.innerHTML = `Current user: ${username}`;
+            }
+        });
+    });
 }
 
 function ClearBanTable() {
