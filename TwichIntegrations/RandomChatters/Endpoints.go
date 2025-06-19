@@ -136,6 +136,7 @@ func handleWS(ws *websocket.Conn) {
 		if err == io.EOF {
 			break
 		}
+		// fmt.Printf("Recieved \"%v\" from WS\n", string(buf))
 		ws.Write(buf)
 	}
 	ws.Close()

@@ -30,18 +30,24 @@ function NewUser(name, pfp) {
 
 
 function HandleMessage(message) {
-    let data = JSON.parse(message.data);
-    console.log(data);
-    switch(data.type) {
-        case "message":
-            SetNewMessage(data.message);
-            break;
-        case "disconnect":
-            Disconnect();
-            break;
-        case "connect":
-            NewUser(data.username, data.userpfp);
-            break;
+    try {
+        let data = JSON.parse(message.data);
+        console.log(data);
+        switch(data.type) {
+            case "message":
+                SetNewMessage(data.message);
+                break;
+            case "disconnect":
+                Disconnect();
+                break;
+            case "connect":
+                NewUser(data.username, data.userpfp);
+                break;
+            case "heartbeat":
+                break;
+        }
+    } catch(err) {
+        console.log(err);
     }
 }   
 
@@ -50,6 +56,14 @@ function Connect() {
     socket.onerror = OnWSError;
     socket.onclose = OnWSError;
     socket.onmessage = HandleMessage;
+
+    // Keepalive-messages
+    setInterval(() => {
+        if(socket != undefined && socket != null && socket.readyState == 1)
+            socket.send(`{"type":"heartbeat"}`);
+    }, 5000);
+
+    // Keepalive
     document.getElementById("lost_connection").style.visibility = "hidden"; 
     window.speechSynthesis.addEventListener("onend", () => {
         console.log("ended");
@@ -70,7 +84,6 @@ var prevSpeechValue = false
 setInterval(() => {
     SetPfpRotation();
 }, 1000 / 30);
-
 function SetPfpRotation() {
     if(!window.speechSynthesis.speaking) {
         if(prevSpeechValue) 
