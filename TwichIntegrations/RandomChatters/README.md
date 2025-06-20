@@ -14,7 +14,7 @@ A message is sent to connection when the active chatter sends something in chat.
 ```
 {
 	"type": "message",
-    "message": <message>
+	"message": string // Messagge viewer sent
 }
 ```
 
@@ -23,8 +23,8 @@ A new chatter is connectd. The schema is as follows:
 ```
 {
 	"type": "conenct",
-    "username": string, // chatter's username
-    "userpfp": string  // chatter's user profile
+	"username": string, // chatter's username
+	"userpfp": string  // chatter's user profile
 }
 ```
 
@@ -67,6 +67,7 @@ Removes a user from blocked list. Uses username from list
 {
     "username": string
 }
+```
 This endpoint is not protected
 
 ### Authentication
