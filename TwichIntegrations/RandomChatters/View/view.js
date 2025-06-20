@@ -24,10 +24,10 @@ function Disconnect() {
 
 function NewUser(name, pfp) {
     console.log("New user!");
+    SetNewMessage(" ");
     document.getElementById("nickname").innerHTML = name;
     document.getElementById("ava_img").src = pfp; 
 }
-
 
 function HandleMessage(message) {
     try {
