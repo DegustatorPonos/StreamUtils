@@ -105,7 +105,6 @@ func HandlerCondition(username string, _ string) bool {
 	if CurrentState.CurrentCahtter == nil {
 		return false
 	}
-	// fmt.Printf("Comparing %v and %v - %v\n", username, CurrentState.CurrentCahtter.UserName, username == CurrentState.CurrentCahtter.UserName)
 	return username == CurrentState.CurrentCahtter.DisplayName
 }
 

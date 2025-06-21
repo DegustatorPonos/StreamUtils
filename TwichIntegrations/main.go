@@ -6,6 +6,7 @@ import (
 
 	chatters "StreamTTS/Chatters"
 	ev "StreamTTS/EnvVariables"
+	messagehandling "StreamTTS/MessageHandling"
 	randomchatters "StreamTTS/RandomChatters"
 	twichcomm "StreamTTS/TwichComm"
 )
@@ -14,7 +15,7 @@ var TerminationChan = make(chan interface{}, 1)
 
 func main() {
 	go RunHTTPServer()
-	ev.Enviroment.MainDB = chatters.EstablishDBConnection()
+
 	var envErr = ev.ReadEnvVariables()
 	if envErr != nil {
 		return
@@ -37,6 +38,17 @@ func main() {
 		panic("Token is somehow invalid")
 	}
 
+	// We are authenticated
+
+	if ev.Config.EnableRandomChatter {
+		randomchatters.Init()
+	}
+	if ev.Config.ActivityMetrics {
+		messagehandling.Init()
+	}
+
+	ev.Enviroment.MainDB = chatters.EstablishDBConnection()
+
 	// Setting up broadcaster ID
 	ev.Enviroment.BroadcasterId = twichcomm.GetChannelId(ev.Enviroment.BroadcasterLogin)
 	
@@ -45,11 +57,6 @@ func main() {
 		fmt.Println(connectionErr.Error())
 		return
 	}
-
-	if ev.Config.EnableRandomChatter {
-		randomchatters.Init()
-	}
-
 	RegisterSubscriptions(SessionInfo)
 
 	<- TerminationChan
@@ -59,6 +66,9 @@ func RunHTTPServer() {
 	http.HandleFunc("/auth", twichcomm.AuthKeyHttpEndpoint) 
 	if ev.Config.EnableRandomChatter {
 		randomchatters.RegisterEndpoints()
+	}
+	if ev.Config.ActivityMetrics {
+		messagehandling.RegisterEndpoints()
 	}
 	http.ListenAndServe(":3000", nil)
 }
