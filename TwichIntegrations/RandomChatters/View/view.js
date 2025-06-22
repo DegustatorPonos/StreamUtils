@@ -1,4 +1,4 @@
-const WS_URL = "../api/rnd/ws";
+const WS_URL = "../api/rnd/wsconn";
 
 let socket = null;
 
@@ -53,8 +53,9 @@ function HandleMessage(message) {
 
 function Connect() {
     socket = new WebSocket(WS_URL);
+    socket.onopen = () => {  document.getElementById("lost_connection").style.visibility = "hidden"; }
     socket.onerror = OnWSError;
-    socket.onclose = OnWSError;
+    socket.onclose = OnWSClose;
     socket.onmessage = HandleMessage;
 
     // Keepalive-messages
@@ -64,17 +65,21 @@ function Connect() {
     }, 5000);
 
     // Keepalive
-    document.getElementById("lost_connection").style.visibility = "hidden"; 
     window.speechSynthesis.addEventListener("onend", () => {
         console.log("ended");
     });
 }
 
-function OnWSError(err) {
-    document.getElementById("lost_connection").style.visibility = "visible"; 
+function OnWSClose(err) {
     console.log("Reconnecting to ws due to error. Error: " + err);
     console.log("Reconnecting...");
-    Connect();
+    document.getElementById("lost_connection").style.visibility = "visible"; 
+    setTimeout(Connect, 1000)
+}
+
+function OnWSError(err) {
+    console.log("Disconnected from ws due to error. Error: " + err);
+    socket.close()
 }
 
 var roatationIndex = 0;

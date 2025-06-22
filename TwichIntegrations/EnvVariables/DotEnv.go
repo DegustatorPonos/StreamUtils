@@ -16,6 +16,8 @@ type AppConfig struct {
 	EnableTTS bool
 	// Enables random chatter calls functionality
 	EnableRandomChatter bool
+	// A calculation of chatter activity
+	ActivityMetrics bool
 }
 
 type EnvVariables struct {
@@ -38,6 +40,7 @@ type EnvVariables struct {
 var Config AppConfig = AppConfig{
 	EnableTTS: false,
 	EnableRandomChatter: true,
+	ActivityMetrics: true,
 }
 
 var Enviroment EnvVariables = EnvVariables{}
