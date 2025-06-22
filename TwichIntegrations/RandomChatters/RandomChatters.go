@@ -67,7 +67,7 @@ func getRadomChatterWithPriorities() *twichcomm.ChannelInfo {
 		}
 	}
 
-	if probe.WeigthsSum == 0 {
+	if len(probe.Metrics)== 0 {
 		fmt.Println("[LOGS] No one has chatted yet. Returning a true random dude")
 		return getTrueRandomChatter()
 	}
@@ -106,12 +106,13 @@ func getOnceActiveChatter(probe *messagehandling.ActivityMeter) *twichcomm.Chann
 	var possible = make([]string, 0)
 	for _, u := range users.Data {
 		// At this point no ignored users should be in a probe
-		var _, exists = probe.Metrics[u.UserLogin]
+		var _, exists = probe.Metrics[u.UserName]
 		if exists {
-			possible = append(possible, u.UserLogin)
+			possible = append(possible, u.UserName)
 		}
 	}
 	if len(possible) < 1 {
+		fmt.Println("[LOGS] No active user was found in the chat. Returning the random one")
 		return getTrueRandomChatter()
 	}
 	var userData, dataErr = twichcomm.GetChannelInfo(possible[rand.Intn(len(possible))])

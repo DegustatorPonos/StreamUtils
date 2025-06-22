@@ -19,7 +19,7 @@ const ViewsLocation = "RandomChatters/View"
 var _WSConnections = []*websocket.Conn{}
 
 func RegisterEndpoints() {
-		http.Handle("/api/rnd/ws", websocket.Handler(handleWS))
+		http.Handle("/api/rnd/wsconn", websocket.Handler(handleWS))
 
 		http.HandleFunc("/rnd/view", indexView) 
 		http.HandleFunc("/rnd/control", controlView) 
@@ -121,6 +121,7 @@ func GetMostRecentMessage(w http.ResponseWriter, r *http.Request) {
 
 func handleWS(ws *websocket.Conn) {
 	_WSConnections = append(_WSConnections, ws)
+	fmt.Println("New WS conn!")
 	if CurrentState != nil && CurrentState.CurrentCahtter != nil {
 		var event = ConnectEvent{
 			Type: "connect",
@@ -131,6 +132,7 @@ func handleWS(ws *websocket.Conn) {
 		ws.Write(payload)
 	}
 	var buf = make([]byte, 1024)
+	defer ws.Close()
 	for {
 		var _, err = ws.Read(buf)
 		if err == io.EOF {
@@ -139,7 +141,6 @@ func handleWS(ws *websocket.Conn) {
 		// fmt.Printf("Recieved \"%v\" from WS\n", string(buf))
 		ws.Write(buf)
 	}
-	ws.Close()
 }
 
 func serveFile(w http.ResponseWriter, r *http.Request, fileName string) {
