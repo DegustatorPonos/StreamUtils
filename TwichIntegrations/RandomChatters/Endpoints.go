@@ -9,6 +9,7 @@ import (
 	"slices"
 
 	ev "StreamTTS/EnvVariables"
+	twichcomm "StreamTTS/TwichComm"
 	// twichcomm "StreamTTS/TwichComm"
 
 	"golang.org/x/net/websocket"
@@ -49,7 +50,14 @@ func connectAPIRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var channelInfo = GetRandomChatter()
-	CurrentState.CurrentCahtter = channelInfo
+	var requestedUser = r.URL.Query().Get("user")
+	if requestedUser != "" {
+		var requestedInfo, _ = twichcomm.GetChannelInfo(requestedUser)
+		fmt.Printf("Connecting %v\n", requestedUser)
+		CurrentState.CurrentCahtter = &requestedInfo.Data[0]
+	} else {
+		CurrentState.CurrentCahtter = channelInfo
+	}
 	onConnect()
 }
 
