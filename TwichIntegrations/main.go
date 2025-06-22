@@ -16,6 +16,8 @@ var TerminationChan = make(chan interface{}, 1)
 func main() {
 	go RunHTTPServer()
 
+	ev.Enviroment.MainDB = chatters.EstablishDBConnection()
+	messagehandling.LoadFilter()
 	var envErr = ev.ReadEnvVariables()
 	if envErr != nil {
 		return
@@ -64,6 +66,7 @@ func main() {
 
 func RunHTTPServer() {
 	http.HandleFunc("/auth", twichcomm.AuthKeyHttpEndpoint) 
+	http.HandleFunc("/api/filters/reload", messagehandling.ReloadBannedWordList) 
 	if ev.Config.EnableRandomChatter {
 		randomchatters.RegisterEndpoints()
 	}

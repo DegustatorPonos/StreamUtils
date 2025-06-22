@@ -43,6 +43,7 @@ func Init() {
 	messagehandling.RegisterHandler(&messagehandling.Handler{
 		Condition: HandlerCondition, 
 		Action: HandlerAction,
+		Filtered: true,
 	})
 }
 
@@ -158,6 +159,9 @@ func onConnect() {
 		Type: "connect",
 		UserName: CurrentState.CurrentCahtter.DisplayName,
 		UserPfp: CurrentState.CurrentCahtter.ProfileImageUrl,
+	}
+	if CurrentState.CurrentCahtter.DisplayName == "NeucocA" {
+		event.UserPfp = "https://media.discordapp.net/attachments/1385284818929057822/1386036537443221534/1750526554924.png?ex=68583e9d&is=6856ed1d&hm=c02afdc4fb310d80bcbe04a70acf3501e4d3f528a4a4634660674bacc9ad79ee&=&format=webp&quality=lossless&width=300&height=300"
 	}
 	var payload, marshalErr = json.Marshal(event)
 	if marshalErr != nil {
