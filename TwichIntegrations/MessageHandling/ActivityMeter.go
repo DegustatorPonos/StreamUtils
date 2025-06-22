@@ -6,40 +6,50 @@ import (
 	"net/http"
 	"sort"
 	"time"
+
+	ev "StreamTTS/EnvVariables"
 )
 
-const RateDeclineCoeff = 5
+const RateDeclineCoeff float64 = float64(1) / 50
 
 type userRecord struct {
 	Username string `json:"username"`
-	Value float64 `json:"value"`
+	Weight float64 `json:"value"`
 	LastMessageTime time.Time `json:"lastmessagetime"`
+	TotalMessages uint64 `json:"totalmessages"`
 }
 
-type activityMeter struct {
+type ActivityMeter struct {
 	Metrics map[string]userRecord `json:"metrics"`
+	WeigthsSum float64 `json:"weigthssum"`
 }
 
-var ActivityMeter activityMeter 
+var ActivityMeterState ActivityMeter 
 
 func registerMessage(username string, _ string) {
-	var val, exists = ActivityMeter.Metrics[username]
+	var val, exists = ActivityMeterState.Metrics[username]
 	if !exists {
-		ActivityMeter.Metrics[username] = userRecord{
+		ActivityMeterState.Metrics[username] = userRecord{
 			Username: username,
-			Value: 1,
+			Weight: 1,
 			LastMessageTime: time.Now(),
+			TotalMessages: 1,
 		}
+		ActivityMeterState.WeigthsSum++
 		return
 	}
-	val.recalculateMetric()
+	val.Weight++
+	val.TotalMessages++
 	val.LastMessageTime = time.Now()
-	ActivityMeter.Metrics[username] = val
+	var delta = val.recalculateMetric()
+	ActivityMeterState.Metrics[username] = val
+	ActivityMeterState.WeigthsSum += delta + 1
 }
 
 func Init() {
-	ActivityMeter = activityMeter{
+	ActivityMeterState = ActivityMeter{
 		Metrics: make(map[string]userRecord),
+		WeigthsSum: 0,
 	}
 	RegisterHandler(&Handler{
 		Condition: func(_, _ string) bool { return true }, 
@@ -47,9 +57,15 @@ func Init() {
 	})
 }
 
-func (data *userRecord) recalculateMetric() {
+func (data *userRecord) recalculateMetric() float64 {
 	var dt = time.Now().Unix() - data.LastMessageTime.Unix() + 1
-	data.Value = (data.Value / float64(dt)) + 1
+	var delta = -1 * data.Weight
+	data.Weight -= float64(dt) * RateDeclineCoeff
+	if data.Weight < 0 {
+		data.Weight = 0
+	}
+	delta += data.Weight
+	return delta
 }
 
 func RegisterEndpoints() {
@@ -72,19 +88,8 @@ func getUsersTierlist(w http.ResponseWriter, r *http.Request) {
 }
 
 func getMetricsRaw(w http.ResponseWriter, r *http.Request) {
-	var resp = activityMeter{
-		Metrics: make(map[string]userRecord),
-	}
-	for k, v := range ActivityMeter.Metrics {
-		var clone = userRecord{
-			Username: v.Username,
-			Value: v.Value,
-			LastMessageTime: v.LastMessageTime,
-		}
-		clone.recalculateMetric()
-		resp.Metrics[k] = clone
-	}
-	var body, jsonerr = json.Marshal(resp)
+	var probe = ProbeUserActivity()
+	var body, jsonerr = json.Marshal(probe)
 	if jsonerr != nil {
 		fmt.Printf("An error occured while creating raw metrics resp. \nOriginal message: %v\n", jsonerr.Error())
 		w.WriteHeader(500)
@@ -95,15 +100,37 @@ func getMetricsRaw(w http.ResponseWriter, r *http.Request) {
 
 // Returns the results sorted
 func GetUserActivityRating() []string {
-	var users = make([]userRecord, 0, len(ActivityMeter.Metrics))
-	for _, v := range ActivityMeter.Metrics {
+	var users = make([]userRecord, 0, len(ActivityMeterState.Metrics))
+	for _, v := range ActivityMeterState.Metrics {
 		users = append(users, v)
 		users[len(users) - 1].recalculateMetric()
 	}
-	sort.Slice(users, func(i, j int)bool { return users[i].Value < users[j].Value })
+	sort.Slice(users, func(i, j int)bool { return users[i].Weight < users[j].Weight })
 	var outp = make([]string, 0, len(users))
 	for _, v := range users {
 		outp = append(outp, v.Username)
 	}
 	return outp
+}
+
+func ProbeUserActivity() *ActivityMeter {
+	if !ev.Config.ActivityMetrics {
+		return &ActivityMeter{}
+	}
+	var outp = ActivityMeter{
+		Metrics: make(map[string]userRecord),
+		WeigthsSum: ActivityMeterState.WeigthsSum,
+	}
+	for k, v := range ActivityMeterState.Metrics {
+		var clone = userRecord{
+			Username: v.Username,
+			Weight: v.Weight,
+			LastMessageTime: v.LastMessageTime,
+			TotalMessages: v.TotalMessages,
+		}
+		var delta = clone.recalculateMetric()
+		outp.Metrics[k] = clone
+		outp.WeigthsSum += delta
+	}
+	return &outp
 }

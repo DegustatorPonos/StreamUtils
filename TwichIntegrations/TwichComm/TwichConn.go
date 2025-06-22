@@ -16,7 +16,7 @@ const Origin string = "http://localhost"
 const ShowMessages bool = true
 
 // If set to true shows JSONs from event API
-const ShowAPIResp bool = true
+const ShowAPIResp bool = false
 
 // Buffer size
 const WSWindowScale int = 4096
