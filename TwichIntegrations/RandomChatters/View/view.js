@@ -64,7 +64,6 @@ function Connect() {
             socket.send(`{"type":"heartbeat"}`);
     }, 5000);
 
-    // Keepalive
     window.speechSynthesis.addEventListener("onend", () => {
         console.log("ended");
     });
@@ -89,6 +88,7 @@ var prevSpeechValue = false
 setInterval(() => {
     SetPfpRotation();
 }, 1000 / 30);
+
 function SetPfpRotation() {
     if(!window.speechSynthesis.speaking) {
         if(prevSpeechValue) 

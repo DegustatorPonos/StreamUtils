@@ -95,3 +95,8 @@ function PardonUser(username) {
         }
     });
 }
+
+function RefreshBanTable() {
+    ClearBanTable();
+    FillBanTable();
+}
