@@ -53,6 +53,7 @@ function HandleMessage(message) {
 
 function Connect() {
     socket = new WebSocket(WS_URL);
+    socket.onopen = () => {  document.getElementById("lost_connection").style.visibility = "hidden"; }
     socket.onerror = OnWSError;
     socket.onclose = OnWSClose;
     socket.onmessage = HandleMessage;
@@ -64,7 +65,6 @@ function Connect() {
     }, 5000);
 
     // Keepalive
-    document.getElementById("lost_connection").style.visibility = "hidden"; 
     window.speechSynthesis.addEventListener("onend", () => {
         console.log("ended");
     });
