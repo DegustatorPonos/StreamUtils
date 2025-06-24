@@ -44,14 +44,8 @@ func main() {
 	}
 
 	// We are authenticated
-
-	if ev.Config.EnableRandomChatter {
-		randomchatters.Init()
-	}
-	if ev.Config.ActivityMetrics {
-		messagehandling.Init()
-	}
-
+	randomchatters.Init()
+	messagehandling.Init()
 	ev.Enviroment.MainDB = chatters.EstablishDBConnection()
 
 	// Setting up broadcaster ID
