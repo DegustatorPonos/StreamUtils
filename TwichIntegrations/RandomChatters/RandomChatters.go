@@ -183,7 +183,7 @@ func onDisconnect() {
 }
 
 func HandlerCondition(username string, _ string) bool {
-	if CurrentState.CurrentCahtter == nil {
+	if !ev.Config.EnableRandomChatter || CurrentState.CurrentCahtter == nil {
 		return false
 	}
 	return username == CurrentState.CurrentCahtter.DisplayName

@@ -45,6 +45,10 @@ func authorizeRequest(r *http.Request) bool {
 }
 
 func connectAPIRequest(w http.ResponseWriter, r *http.Request) {
+	if !ev.Config.EnableRandomChatter {
+		w.WriteHeader(404)
+		return
+	}
 	if !authorizeRequest(r) {
 		w.WriteHeader(403)
 		return
@@ -62,6 +66,10 @@ func connectAPIRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func disconnectAPIRequest(w http.ResponseWriter, r *http.Request) {
+	if !ev.Config.EnableRandomChatter {
+		w.WriteHeader(404)
+		return
+	}
 	if !authorizeRequest(r) {
 		w.WriteHeader(403)
 		return
@@ -71,6 +79,10 @@ func disconnectAPIRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func ignoredChatterAPIRequest(w http.ResponseWriter, r *http.Request) {
+	if !ev.Config.EnableRandomChatter {
+		w.WriteHeader(404)
+		return
+	}
 	type list struct {
 		Chatters []string `json:"chatters"`
 	}
@@ -84,6 +96,10 @@ func ignoredChatterAPIRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func getCurrentUserAPIREquest(w http.ResponseWriter, r *http.Request) {
+	if !ev.Config.EnableRandomChatter {
+		w.WriteHeader(404)
+		return
+	}
 	if CurrentState == nil || CurrentState.CurrentCahtter == nil {
 		w.Write([]byte("{ \"username\": \"\" }"))
 	} else {
@@ -92,6 +108,10 @@ func getCurrentUserAPIREquest(w http.ResponseWriter, r *http.Request) {
 }
 
 func banAPIRequest(w http.ResponseWriter, r *http.Request) {
+	if !ev.Config.EnableRandomChatter {
+		w.WriteHeader(404)
+		return
+	}
 	if !authorizeRequest(r) {
 		w.WriteHeader(403)
 		return
@@ -104,6 +124,10 @@ func banAPIRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func pardonAPIRequest(w http.ResponseWriter, r *http.Request) {
+	if !ev.Config.EnableRandomChatter {
+		w.WriteHeader(404)
+		return
+	}
 	if !authorizeRequest(r) {
 		w.WriteHeader(403)
 		return
@@ -119,6 +143,10 @@ func pardonAPIRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetMostRecentMessage(w http.ResponseWriter, r *http.Request) {
+	if !ev.Config.EnableRandomChatter {
+		w.WriteHeader(404)
+		return
+	}
 	if(len(CurrentState.Messages) == 0) {
 	fmt.Fprint(w, "\n0")
 		return
@@ -152,6 +180,10 @@ func handleWS(ws *websocket.Conn) {
 }
 
 func serveFile(w http.ResponseWriter, r *http.Request, fileName string) {
+	if !ev.Config.EnableRandomChatter {
+		w.WriteHeader(404)
+		return
+	}
 	var filePath = fmt.Sprintf("%v/%v", ViewsLocation, fileName)
 	var file, err = os.ReadFile(filePath)
 	if err != nil {

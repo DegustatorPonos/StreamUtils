@@ -14,6 +14,9 @@ import (
 var TerminationChan = make(chan interface{}, 1)
 
 func main() {
+	if configerr := ev.LoadConfig(); configerr != nil {
+		panic(configerr.Error())
+	}
 	go RunHTTPServer()
 
 	ev.Enviroment.MainDB = chatters.EstablishDBConnection()
@@ -52,7 +55,7 @@ func main() {
 	ev.Enviroment.MainDB = chatters.EstablishDBConnection()
 
 	// Setting up broadcaster ID
-	ev.Enviroment.BroadcasterId = twichcomm.GetChannelId(ev.Enviroment.BroadcasterLogin)
+	ev.Enviroment.BroadcasterId = twichcomm.GetChannelId(ev.Config.BroadcasterLogin)
 	
 	var SessionInfo, connectionErr = twichcomm.ConnectToWs(ev.Enviroment.TwichAPIKey)
 	if connectionErr != nil {
@@ -66,13 +69,10 @@ func main() {
 
 func RunHTTPServer() {
 	http.HandleFunc("/auth", twichcomm.AuthKeyHttpEndpoint) 
-	http.HandleFunc("/api/filters/reload", messagehandling.ReloadBannedWordList) 
-	if ev.Config.EnableRandomChatter {
-		randomchatters.RegisterEndpoints()
-	}
-	if ev.Config.ActivityMetrics {
-		messagehandling.RegisterEndpoints()
-	}
+	http.HandleFunc("/api/reload/filters", messagehandling.ReloadBannedWordList) 
+	http.HandleFunc("/api/reload/config", ev.RelaoadConfigEndpoint) 
+	randomchatters.RegisterEndpoints()
+	messagehandling.RegisterEndpoints()
 	http.ListenAndServe(":3000", nil)
 }
 

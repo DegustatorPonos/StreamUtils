@@ -52,7 +52,7 @@ func Init() {
 		WeigthsSum: 0,
 	}
 	RegisterHandler(&Handler{
-		Condition: func(_, _ string) bool { return true }, 
+		Condition: func(_, _ string) bool { return ev.Config.ActivityMetrics }, 
 		Action: registerMessage,
 	})
 }
@@ -74,6 +74,10 @@ func RegisterEndpoints() {
 }
 
 func getUsersTierlist(w http.ResponseWriter, r *http.Request) {
+	if !ev.Config.ActivityMetrics {
+		w.WriteHeader(404)
+		return
+	}
 	type temp struct {
 		Data []string `json:"data"`
 	}
@@ -88,6 +92,10 @@ func getUsersTierlist(w http.ResponseWriter, r *http.Request) {
 }
 
 func getMetricsRaw(w http.ResponseWriter, r *http.Request) {
+	if !ev.Config.ActivityMetrics {
+		w.WriteHeader(404)
+		return
+	}
 	var probe = ProbeUserActivity()
 	var body, jsonerr = json.Marshal(probe)
 	if jsonerr != nil {

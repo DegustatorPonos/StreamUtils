@@ -11,20 +11,10 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type AppConfig struct {
-	// TTS will say all the messages
-	EnableTTS bool
-	// Enables random chatter calls functionality
-	EnableRandomChatter bool
-	// A calculation of chatter activity
-	ActivityMetrics bool
-}
-
 type EnvVariables struct {
 	// Stored in .env file
 	TwichAPIKey string
 	TwichAPISecret string
-	BroadcasterLogin string
 	UserCode string
 	AppAPIKey string
 	// Stored in temp
@@ -34,13 +24,6 @@ type EnvVariables struct {
 	BroadcasterId string
 	UserId string
 	MainDB *sql.DB
-}
-
-// Functionality
-var Config AppConfig = AppConfig{
-	EnableTTS: false,
-	EnableRandomChatter: true,
-	ActivityMetrics: true,
 }
 
 var Enviroment EnvVariables = EnvVariables{}
@@ -54,7 +37,7 @@ func ReadEnvVariables() (error) {
 	Enviroment.TwichAPIKey = os.Getenv("TWICH_API_KEY")
 	Enviroment.UserCode = os.Getenv("USER_CODE")
 	Enviroment.TwichAPISecret = os.Getenv("TWICH_API_SECRET")
-	Enviroment.BroadcasterLogin = os.Getenv("BROADCASTER_LOGIN")
+	// Enviroment.BroadcasterLogin = os.Getenv("BROADCASTER_LOGIN")
 	Enviroment.AppAPIKey = os.Getenv("APP_TOKEN")
 	return nil
 }
