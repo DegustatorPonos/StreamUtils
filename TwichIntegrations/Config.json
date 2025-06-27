@@ -1,0 +1,11 @@
+{
+	"enabletts": true,
+	"enablerandomchatter": true,
+	"activitymetrics": true,
+	"broadcasterlogin": "physickdev",
+	"filtersettings": {
+		"FilterFileLocation": "../Filters.txt",
+		"bannedwords": true,
+		"links": true
+	}
+}

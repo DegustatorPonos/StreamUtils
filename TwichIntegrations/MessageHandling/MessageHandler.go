@@ -6,30 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"os/exec"
-	"strings"
 )
 
-const FilterPath string = "../Filters.txt"
-
-type Filter struct {
-	BannedWords []string `json:"bannedwords"`
-}
-
-func (base *Filter) ChechString(inp string) bool {
-	for _, v := range base.BannedWords {
-		if v == "" {
-			continue
-		}
-		var nomalized = strings.ToLower(inp)
-		if strings.Contains(nomalized, v) {
-			fmt.Printf("The message '%v' contaings a banned word '%v'\n", inp, v)
-			return false
-		}
-	}
-	return true
-}
 
 type Handler struct {
 	// Inputs are username and message. 
@@ -46,17 +25,6 @@ var registeredActions []Handler = []Handler{}
 
 var GlobalFilter Filter
 
-func LoadFilter() {
-	var contents, err = os.ReadFile(FilterPath)
-	if err != nil {
-		panic("Could not load filter file")
-
-	}
-	GlobalFilter = Filter{
-		BannedWords: strings.Split(string(contents), "\n"),
-	}
-}
-
 func HandleMessage(username, msg string) {
 	var UserID = chatters.GetChatterID(username, ev.Enviroment.MainDB)
 	if UserID < 0 {
@@ -70,7 +38,7 @@ func HandleMessage(username, msg string) {
 
 	for _, handler := range registeredActions {
 		if handler.Condition(username, msg) {
-			if handler.Filtered && !GlobalFilter.ChechString(msg) { 
+			if handler.Filtered && !GlobalFilter.CheckString(msg) { 
 				continue
 			}
 			handler.Action(username, msg)

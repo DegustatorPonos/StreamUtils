@@ -20,6 +20,7 @@ func main() {
 	messagehandling.LoadFilter()
 	var envErr = ev.ReadEnvVariables()
 	if envErr != nil {
+		fmt.Printf("An error occured while reading .env file. \nOrigianl error: %v\n", envErr.Error())
 		return
 	}
 
