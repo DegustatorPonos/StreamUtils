@@ -45,6 +45,8 @@ func Init() {
 		Action: HandlerAction,
 		Filtered: true,
 	})
+
+	messagehandling.RegisterHandler(messagehandling.CreateTTSHandler())
 }
 
 var IgnoredChatters []string = []string{"physickdev", "personthemanhumane"}

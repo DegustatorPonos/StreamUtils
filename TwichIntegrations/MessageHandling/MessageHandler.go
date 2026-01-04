@@ -17,7 +17,7 @@ type Filter struct {
 	BannedWords []string `json:"bannedwords"`
 }
 
-func (base *Filter) ChechString(inp string) bool {
+func (base *Filter) CheckString(inp string) bool {
 	for _, v := range base.BannedWords {
 		if v == "" {
 			continue
@@ -58,19 +58,9 @@ func LoadFilter() {
 }
 
 func HandleMessage(username, msg string) {
-	var UserID = chatters.GetChatterID(username, ev.Enviroment.MainDB)
-	if UserID < 0 {
-		chatters.RegisterChatter(username, ev.Enviroment.MainDB)
-		UserID = chatters.GetChatterID(username, ev.Enviroment.MainDB)
-	}
-	fmt.Printf("%d %v: %v\n", UserID, username, msg)
-	if ev.Config.EnableTTS {
-		go SayMsg(UserID, msg)
-	}
-
 	for _, handler := range registeredActions {
 		if handler.Condition(username, msg) {
-			if handler.Filtered && !GlobalFilter.ChechString(msg) { 
+			if handler.Filtered && !GlobalFilter.CheckString(msg) { 
 				continue
 			}
 			handler.Action(username, msg)

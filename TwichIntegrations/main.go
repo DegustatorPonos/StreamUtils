@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	chatters "StreamTTS/Chatters"
@@ -23,6 +24,7 @@ func main() {
 	messagehandling.LoadFilter()
 	var envErr = ev.ReadEnvVariables()
 	if envErr != nil {
+		log.Printf("Failed to load enviroment: %v", envErr.Error())
 		return
 	}
 
