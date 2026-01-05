@@ -25,5 +25,5 @@ func ttsAction(name string, message string) {
 		UserID = chatters.GetChatterID(name, envvariables.Enviroment.MainDB)
 	}
 	fmt.Printf("%d %v: %v\n", UserID, name, message)
-	SayMsg(UserID, message)
+	go SayMsg(UserID, message)
 }
