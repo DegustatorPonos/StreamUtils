@@ -8,6 +8,7 @@ import (
 	"time"
 
 	ev "StreamTTS/EnvVariables"
+	models "StreamTTS/Models"
 )
 
 const RateDeclineCoeff float64 = float64(1) / 50
@@ -26,7 +27,8 @@ type ActivityMeter struct {
 
 var ActivityMeterState ActivityMeter 
 
-func registerMessage(username string, _ string) {
+func registerMessage(msg models.APIChatMessage) {
+	var username = msg.Payload.Event.Chatter_User_Id
 	var val, exists = ActivityMeterState.Metrics[username]
 	if !exists {
 		ActivityMeterState.Metrics[username] = userRecord{
@@ -52,7 +54,7 @@ func Init() {
 		WeigthsSum: 0,
 	}
 	RegisterHandler(&Handler{
-		Condition: func(_, _ string) bool { return ev.Config.ActivityMetrics }, 
+		Condition: func(_ models.APIChatMessage) bool { return ev.Config.ActivityMetrics }, 
 		Action: registerMessage,
 	})
 }

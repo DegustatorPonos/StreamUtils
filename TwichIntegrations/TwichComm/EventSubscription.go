@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	ev "StreamTTS/EnvVariables"
+	models "StreamTTS/Models"
 )
 
 const EventSubURL string = "https://api.twitch.tv/helix/eventsub/subscriptions"
@@ -15,7 +16,7 @@ type subscriptionRequest struct {
 	Type string `json:"type"`
 	Version string `json:"version"`
 	Condition any  `json:"condition"`
-	Transport WebhookInfo `json:"transport"`
+	Transport models.WebhookInfo `json:"transport"`
 }
 
 type ChatMessageCondition struct {
@@ -41,7 +42,7 @@ func SubscribeToChat(sessionInfo *ConnectionInfo) bool {
 			Broadcaster_user_ID: ev.Enviroment.BroadcasterId,
 			User_ID: ev.Enviroment.UserId,
 		},
-		Transport: WebhookInfo{
+		Transport: models.WebhookInfo{
 			Method: "websocket",
 			Session_ID: sessionInfo.SessionId,
 		},

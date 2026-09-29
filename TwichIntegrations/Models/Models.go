@@ -1,4 +1,4 @@
-package twichcomm
+package models 
 
 // This file contains structs only
 type WelcomeMessage struct {

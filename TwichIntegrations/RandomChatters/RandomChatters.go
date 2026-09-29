@@ -3,6 +3,7 @@ package randomchatters
 import (
 	ev "StreamTTS/EnvVariables"
 	messagehandling "StreamTTS/MessageHandling"
+	models "StreamTTS/Models"
 	twichcomm "StreamTTS/TwichComm"
 	"encoding/json"
 	"fmt"
@@ -184,14 +185,16 @@ func onDisconnect() {
 	sendPayloadToWS(&payload)
 }
 
-func HandlerCondition(username string, _ string) bool {
+func HandlerCondition(msg models.APIChatMessage) bool {
 	if !ev.Config.EnableRandomChatter || CurrentState.CurrentCahtter == nil {
 		return false
 	}
+	var username = msg.Payload.Event.Broadcaster_User_Name
 	return username == CurrentState.CurrentCahtter.DisplayName
 }
 
-func HandlerAction(_ string, message string) {
+func HandlerAction(msg models.APIChatMessage) {
+	var message = msg.Payload.Event.Message.Text
 	var event = MessageEvent{Type: "message", Message: message}
 	var payload, marshalErr = json.Marshal(event)
 	if marshalErr != nil {

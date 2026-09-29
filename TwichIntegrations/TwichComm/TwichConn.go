@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"golang.org/x/net/websocket"
 	ev "StreamTTS/EnvVariables"
 	msgs "StreamTTS/MessageHandling"
+	models "StreamTTS/Models"
+
+	"golang.org/x/net/websocket"
 )
 
 const TwichWS_URI string = "wss://eventsub.wss.twitch.tv/ws"
@@ -53,6 +55,7 @@ func ConnectionRoutine(ws *websocket.Conn) {
 			continue
 		}
 		buf = buf[:i]
+		fmt.Println(string(buf));
 		var MsgType = GetMessageType(buf)
 		// fmt.Printf("Msg type: %v\n", MsgType)
 		switch MsgType {
@@ -61,7 +64,7 @@ func ConnectionRoutine(ws *websocket.Conn) {
 		case "session_keepalive":
 			continue
 		case "channel.chat.message":
-			var msg APIChatMessage
+			var msg models.APIChatMessage
 			var unmErr = json.Unmarshal(buf, &msg)
 			if unmErr != nil {
 				fmt.Printf("Error: %v\n", unmErr.Error())
@@ -70,12 +73,12 @@ func ConnectionRoutine(ws *websocket.Conn) {
 			if ShowAPIResp {
 				fmt.Printf("Message: %v \n", string(buf))
 			}
-			msgs.HandleMessage(msg.Payload.Event.Chatter_User_Name, msg.Payload.Event.Message.Text)
+			msgs.HandleMessage(msg)
 		}
 	}
 }
 
-func readWelcomeMessage(ws *websocket.Conn) (*WelcomeMessage, error) {
+func readWelcomeMessage(ws *websocket.Conn) (*models.WelcomeMessage, error) {
 	var buf = make([]byte, 1024)
 	var i int
 	var err error 
@@ -83,7 +86,7 @@ func readWelcomeMessage(ws *websocket.Conn) (*WelcomeMessage, error) {
 		return nil, err
 	}
 	buf = buf[:i]
-	var welcome_msg WelcomeMessage
+	var welcome_msg models.WelcomeMessage
 	if ShowMessages {
 		fmt.Println(string(buf))
 	}
@@ -95,7 +98,7 @@ func readWelcomeMessage(ws *websocket.Conn) (*WelcomeMessage, error) {
 }
 
 func GetMessageType(data []byte) string {
-	var bbm = BareBonesMessage{}
+	var bbm = models.BareBonesMessage{}
 	var err = json.Unmarshal(data, &bbm)
 	if err != nil {
 		return ""

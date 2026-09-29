@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	ev "StreamTTS/EnvVariables"
+	models "StreamTTS/Models"
 )
 
 const AuthLink string = 
@@ -16,7 +17,7 @@ const AuthLink string =
 ?response_type=code
 &client_id=%v
 &redirect_uri=http://localhost:3000/auth
-&scope=user:read:chat+moderator:read:chatters`
+&scope=user:read:chat+moderator:read:chatters+user:write:chat+user:bot`
 
 const OAuthLink = "https://id.twitch.tv/oauth2/token"
 
@@ -149,7 +150,7 @@ func AddAuthHeaders(req *http.Request) {
 }
 
 func SetUserIDFromValidation(respBody []byte) {
-	var resp = OAuthResponce{}
+	var resp = models.OAuthResponce{}
 	var err = json.Unmarshal(respBody, &resp)
 	if err != nil {
 		panic("An error occured while unmarshalling OAuth JSON")

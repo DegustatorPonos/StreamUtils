@@ -3,6 +3,7 @@ package messagehandling
 import (
 	chatters "StreamTTS/Chatters"
 	ev "StreamTTS/EnvVariables"
+	models "StreamTTS/Models"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -34,9 +35,9 @@ func (base *Filter) CheckString(inp string) bool {
 type Handler struct {
 	// Inputs are username and message. 
 	// If it returns true antion will be invoked
-	Condition func(string, string) bool
+	Condition func(models.APIChatMessage) bool
 	// This function will be called when the condition check is passed
-	Action func(string, string)
+	Action func(models.APIChatMessage)
 	// Set to true if the word should go through 
 	// additional filter before the invocation
 	Filtered bool
@@ -57,13 +58,13 @@ func LoadFilter() {
 	}
 }
 
-func HandleMessage(username, msg string) {
+func HandleMessage(msg models.APIChatMessage) {
 	for _, handler := range registeredActions {
-		if handler.Condition(username, msg) {
-			if handler.Filtered && !GlobalFilter.CheckString(msg) { 
+		if handler.Condition(msg) {
+			if handler.Filtered && !GlobalFilter.CheckString(msg.Payload.Event.Message.Text) {
 				continue
 			}
-			handler.Action(username, msg)
+			handler.Action(msg)
 		}
 	}
 }

@@ -1,6 +1,6 @@
 {
 	"enabletts": true,
-	"enablerandomchatter": true,
-	"activitymetrics": true,
-	"broadcasterlogin": "vedal987"
+	"enablerandomchatter": false,
+	"activitymetrics": false,
+	"broadcasterlogin": "physickdev"
 }

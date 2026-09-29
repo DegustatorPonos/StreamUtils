@@ -3,6 +3,7 @@ package messagehandling
 import (
 	chatters "StreamTTS/Chatters"
 	envvariables "StreamTTS/EnvVariables"
+	models "StreamTTS/Models"
 	"fmt"
 )
 
@@ -14,11 +15,14 @@ func CreateTTSHandler() *Handler {
 	}
 }
 
-func ttsCondition(_ string, _ string) bool {
+func ttsCondition(_ models.APIChatMessage) bool {
 	return true
 }
 
-func ttsAction(name string, message string) {
+func ttsAction(msg models.APIChatMessage) {
+	var name = msg.Payload.Event.Broadcaster_User_Name
+	var message = msg.Payload.Event.Message.Text
+
 	var UserID = chatters.GetChatterID(name, envvariables.Enviroment.MainDB)
 	if UserID < 0 {
 		chatters.RegisterChatter(name, envvariables.Enviroment.MainDB)
