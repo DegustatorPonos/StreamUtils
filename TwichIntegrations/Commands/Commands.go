@@ -2,8 +2,6 @@ package commands
 
 import (
 	messagehandling "StreamTTS/MessageHandling"
-	models "StreamTTS/Models"
-	twichcomm "StreamTTS/TwichComm"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -13,6 +11,7 @@ import (
 const commandsLocation = "Commands.json"
 
 var loadedCommands = make(map[string]string)
+var helpCommand = ""
 
 func readCommandsListFile(path string) error {
 	var file, fopenerr = os.ReadFile(path)
@@ -23,6 +22,7 @@ func readCommandsListFile(path string) error {
 	if jsonErr != nil {
 		return fmt.Errorf("Failed to parse commands list: %s", jsonErr.Error())
 	}
+	helpCommand = formHelpCommand()
 	return nil
 }
 
@@ -35,30 +35,21 @@ func InitComands() error {
 	return nil
 }
 
-func CreateComandsHandler() *messagehandling.Handler {
-	return &messagehandling.Handler {
-		Condition: commandCondition,
-		Action: commandAction,
-		Filtered: true,
+func formHelpCommand() string {
+	var sb = strings.Builder{}
+	sb.WriteString("Avaliable commands: ")
+	for k := range loadedCommands {
+		sb.WriteString(k)
+		sb.WriteString(", ")
 	}
+	return sb.String()
 }
 
-func commandAction(msg models.APIChatMessage) {
-	// The loadedMessage is guaranteed to be loaded
-	var messageParts = strings.Split(msg.Payload.Event.Message.Text, " ")
-	if (len(messageParts) == 0) {
-		return
+func getComand(msg string) (string, bool) {
+	switch msg {
+	case "!help":
+		return helpCommand, true
 	}
-	var commandResp, _ = loadedCommands[messageParts[0]]
-	var err = twichcomm.SendMessage(commandResp, msg.Payload.Event.MessageID)
-	if err != nil {
-		fmt.Printf("Command execution error: %s", err.Error())
-	}
-}
-
-func commandCondition(msg models.APIChatMessage) bool {
-	var message = msg.Payload.Event.Message.Text
-	fmt.Printf("Checking message %s\n", message)
-	var _, contains = loadedCommands[message]
-	return contains
+	var found, exists = loadedCommands[msg]
+	return found, exists
 }
