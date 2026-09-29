@@ -1,5 +1,5 @@
 {
-	"enabletts": true,
+	"enabletts": false,
 	"enablerandomchatter": false,
 	"activitymetrics": false,
 	"broadcasterlogin": "physickdev"

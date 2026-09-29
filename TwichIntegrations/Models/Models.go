@@ -50,7 +50,7 @@ type MessageEventData struct {
 	Chatter_User_Id string   `json:"chatter_user_id"`
 	Chatter_User_Login string   `json:"chatter_user_login"`
 	Chatter_User_Name string   `json:"chatter_user_name"`
-	MessageID string `json:"messageid"`
+	MessageID string `json:"message_id"`
 	Is_Source_Only string `json:"is_source_only"`
 	Message ChatMessage `json:"message"`
 }

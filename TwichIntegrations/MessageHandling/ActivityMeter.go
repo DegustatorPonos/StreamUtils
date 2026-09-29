@@ -48,7 +48,7 @@ func registerMessage(msg models.APIChatMessage) {
 	ActivityMeterState.WeigthsSum += delta + 1
 }
 
-func Init() {
+func InitActivityMeter() {
 	ActivityMeterState = ActivityMeter{
 		Metrics: make(map[string]userRecord),
 		WeigthsSum: 0,

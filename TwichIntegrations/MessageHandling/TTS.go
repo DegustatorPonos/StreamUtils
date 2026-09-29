@@ -16,7 +16,7 @@ func CreateTTSHandler() *Handler {
 }
 
 func ttsCondition(_ models.APIChatMessage) bool {
-	return true
+	return envvariables.Config.EnableTTS
 }
 
 func ttsAction(msg models.APIChatMessage) {

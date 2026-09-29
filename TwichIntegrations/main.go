@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	chatters "StreamTTS/Chatters"
+	commands "StreamTTS/Commands"
 	ev "StreamTTS/EnvVariables"
 	messagehandling "StreamTTS/MessageHandling"
 	randomchatters "StreamTTS/RandomChatters"
@@ -47,7 +48,10 @@ func main() {
 
 	// We are authenticated
 	randomchatters.Init()
-	messagehandling.Init()
+	messagehandling.InitActivityMeter()
+	if err := commands.InitComands(); err != nil {
+		fmt.Printf("Failed to init comands. Error message: %s\n", err.Error())
+	}
 	ev.Enviroment.MainDB = chatters.EstablishDBConnection()
 
 	// Setting up broadcaster ID
